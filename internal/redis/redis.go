@@ -1,7 +1,7 @@
 package redis
 
 import (
-	"github.com/YungBenn/e-commerce-microservices/config"
+	"github.com/YungBenn/tech-shop-microservices/config"
 	"github.com/redis/go-redis/v9"
 )
 

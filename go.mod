@@ -1,4 +1,4 @@
-module github.com/YungBenn/e-commerce-microservices
+module github.com/YungBenn/tech-shop-microservices
 
 go 1.20
 
