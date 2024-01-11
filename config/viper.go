@@ -7,12 +7,23 @@ import (
 )
 
 type EnvVars struct {
-	PORT        string `mapstructure:"PORT"`
-	MONGODBURI  string `mapstructure:"MONGODB_URI"`
-	MONGODBNAME string `mapstructure:"MONGODB_NAME"`
-	POSTGRESURI string `mapstructure:"POSTGRES_URI"`
-	REDISHOST   string `mapstructure:"REDIS_HOST"`
-	REDISDB     int    `mapstructure:"REDIS_DB"`
+	AuthServiceHost    string `mapstructure:"AUTH_SERVICE_HOST"`
+	AuthServicePort    string `mapstructure:"AUTH_SERVICE_PORT"`
+	CartServiceHost    string `mapstructure:"CART_SERVICE_HOST"`
+	CartServicePort    string `mapstructure:"CART_SERVICE_PORT"`
+	ProductServiceHost string `mapstructure:"PRODUCT_SERVICE_HOST"`
+	ProductServicePort string `mapstructure:"PRODUCT_SERVICE_PORT"`
+	MongodbURI         string `mapstructure:"MONGODB_URI"`
+	MongodbName        string `mapstructure:"MONGODB_NAME"`
+	PostgresHost       string `mapstructure:"POSTGRES_HOST"`
+	PostgresPort       string `mapstructure:"POSTGRES_PORT"`
+	PostgresUser       string `mapstructure:"POSTGRES_USER"`
+	PostgresPassword   string `mapstructure:"POSTGRES_PASSWORD"`
+	PostgresDB         string `mapstructure:"POSTGRES_DB"`
+	PostgresSSLMode    string `mapstructure:"POSTGRES_SSL_MODE"`
+	ElasticsearchURL  string `mapstructure:"ELASTICSEARCH_URL"`
+	RedisHost          string `mapstructure:"REDIS_HOST"`
+	RedisDB            int    `mapstructure:"REDIS_DB"`
 }
 
 func LoadConfig() (config EnvVars, err error) {

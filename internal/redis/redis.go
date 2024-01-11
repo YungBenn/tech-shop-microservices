@@ -7,8 +7,8 @@ import (
 
 func NewRedis(env config.EnvVars) *redis.Client {
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     env.REDISHOST,
-		DB:       env.REDISDB,
+		Addr:     env.RedisHost,
+		DB:       env.RedisDB,
 	})
 
 	return rdb
