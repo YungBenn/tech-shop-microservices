@@ -1,0 +1,101 @@
+syntax = "proto3";
+
+package pb;
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+option go_package = "github.com/YungBenn/e-commerce-microservices/internal/product/pb";
+
+message Product {
+    string id = 1;
+    string title = 2;
+    string price = 3;
+    repeated string tag = 4;
+    string discount = 5;
+    repeated string image = 7;
+    string description = 8;
+    google.protobuf.Timestamp created_at = 9;
+    google.protobuf.Timestamp updated_at = 10;
+}
+
+message CreateProductRequest {
+    string title = 1;
+    string price = 2;
+    repeated string tag = 3;
+    string discount = 4;
+    repeated string image = 5;
+    string description = 6;
+}
+
+message CreateProductResponse {
+    Product product = 1;
+}
+
+message ListProductRequest {
+    string limit = 1;
+}
+
+message ListProductResponse {
+    repeated Product product = 1;
+}
+
+message ReadProductRequest {
+    string id = 1;
+}
+
+message ReadProductResponse {
+    Product product = 1;
+}
+
+message UpdateProductRequest {
+    string id = 1;
+    string title = 2;
+    string price = 3;
+    repeated string tag = 4;
+    string discount = 5;
+    repeated string image = 6;
+    string description = 7;
+}
+
+message UpdateProductResponse {
+    Product product = 1;
+}
+
+message DeleteProductRequest {
+    string id = 1;
+}
+
+message DeleteProductResponse {
+    string id = 1;
+}
+
+service ProductService {
+    rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse) {
+        option (google.api.http) = {
+            post: "/v1/products"
+            body: "*"
+        };
+    }
+    rpc ListProducts(ListProductRequest) returns (ListProductResponse) {
+        option (google.api.http) = {
+            get: "/v1/products"
+        };
+    }
+    rpc ReadProduct(ReadProductRequest) returns (ReadProductResponse) {
+        option (google.api.http) = {
+            get: "/v1/products/{id}"
+        };
+    }
+    rpc UpdateProduct(UpdateProductRequest) returns (UpdateProductResponse) {
+        option (google.api.http) = {
+            put: "/v1/products/{id}"
+            body: "*"
+        };
+    }
+    rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse) {
+        option (google.api.http) = {
+            delete: "/v1/products/{id}"
+        };
+    }
+}

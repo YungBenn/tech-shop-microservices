@@ -54,7 +54,7 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -88,6 +88,34 @@ services:
       interval: 20s
       timeout: 1s
       retries: 5
+
+  krakend:
+    container_name: krakend
+    image: devopsfaith/krakend:2.5
+    volumes:
+      - ../config:/etc/krakend
+    ports:
+      - "5000:5000"
+      - "8090:8090"
+
+  kraken_designer:
+    image: krakend/designer:2.4
+    container_name: krakend_designer
+    ports:
+      - "8787:80"
+
+  tech-shop:
+    build:
+      context: ../build/tech-shop
+      dockerfile: Dockerfile
+    restart: always
+    image: tech-shop:v1
+    ports:
+      - "50050:50050"
+    depends_on:
+      - auth-service
+      - cart-service
+      - product-service
 
   auth-service:
     build:

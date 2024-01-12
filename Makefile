@@ -8,25 +8,25 @@ tidy:
 	go mod tidy
 
 proto.auth:
-	rm -f internal/pb/*.go
-	protoc --proto_path=api/proto/auth --go_out=internal/auth/pb --go_opt=paths=source_relative \
+	rm -f internal/auth/pb/*.go
+	protoc --proto_path=api/proto --go_out=internal/auth/pb --go_opt=paths=source_relative \
 	--go-grpc_out=internal/auth/pb --go-grpc_opt=paths=source_relative \
 	--grpc-gateway_out=internal/auth/pb --grpc-gateway_opt=paths=source_relative \
-	api/proto/*.proto
+	api/proto/auth.proto
 
 proto.cart:
-	rm -f internal/pb/*.go
-	protoc --proto_path=api/proto/cart --go_out=internal/cart/pb --go_opt=paths=source_relative \
+	rm -f internal/cart/pb/*.go
+	protoc --proto_path=api/proto --go_out=internal/cart/pb --go_opt=paths=source_relative \
 	--go-grpc_out=internal/cart/pb --go-grpc_opt=paths=source_relative \
 	--grpc-gateway_out=internal/cart/pb --grpc-gateway_opt=paths=source_relative \
-	api/proto/*.proto
+	api/proto/cart.proto
 
 proto.product:
-	rm -f internal/pb/*.go
-	protoc --proto_path=api/proto/product --go_out=internal/product/pb --go_opt=paths=source_relative \
+	rm -f internal/product/pb/*.go
+	protoc --proto_path=api/proto --go_out=internal/product/pb --go_opt=paths=source_relative \
 	--go-grpc_out=internal/product/pb --go-grpc_opt=paths=source_relative \
 	--grpc-gateway_out=internal/product/pb --grpc-gateway_opt=paths=source_relative \
-	api/proto/*.proto
+	api/proto/product.proto
 
 docker.build:
 	docker build -t go-grpc-http .

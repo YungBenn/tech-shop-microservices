@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package pb;
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+option go_package = "github.com/YungBenn/e-commerce-microservices/internal/auth/pb";
+
+message RegisterRequest {
+    string email = 1;
+    string password = 2;
+    string first_name = 3;
+    string last_name = 4;
+    string phone_number = 5;
+    google.protobuf.Timestamp date_of_birth = 6;
+    google.protobuf.Timestamp created_at = 9;
+    google.protobuf.Timestamp updated_at = 10;
+}
+
+message RegisterResponse {
+    int64 status = 1;
+    string message = 2;
+    RegisterRequest user = 3;
+}
+
+message LoginRequest {
+    string email = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    int64 status = 1;
+    string message = 2;
+    string access_token = 3;
+    string refresh_token = 4;
+}
+
+service AuthService {
+    rpc Register(RegisterRequest) returns (RegisterResponse) {
+        option (google.api.http) = {
+            post: "/v1/auth/register"
+            body: "*"
+        };
+    }
+
+    rpc Login(LoginRequest) returns (LoginResponse) {
+        option (google.api.http) = {
+            post: "/v1/auth/login"
+            body: "*"
+        };
+    }
+}
