@@ -1,0 +1,30 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  - name: auth-service
+    url: http://auth-service:50051
+    protocol: http
+    routes:
+      - name: auth-route
+        paths:
+          - /auth
+        strip_path: true
+
+  - name: cart-service
+    url: http://cart-service:50052
+    protocol: http
+    routes:
+      - name: cart-route
+        paths:
+          - /cart
+        strip_path: true
+
+  - name: product-service
+    url: http://product-service:50053
+    protocol: http
+    routes:
+      - name: product-route
+        paths:
+          - /product
+        strip_path: true
