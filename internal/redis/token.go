@@ -9,21 +9,25 @@ import (
 
 var ctx = context.Background()
 
-type Client struct {
+type TokenRepository interface {
+	SetToken(userID string, value Token) error
+	GetToken(userID string, target *Token) error
+}
+
+type TokenRepositoryImpl struct {
 	rdb *redis.Client
 }
 
-func NewClient(rdb *redis.Client) *Client {
-	return &Client{rdb}
+func NewTokenRepository(rdb *redis.Client) TokenRepository {
+	return &TokenRepositoryImpl{rdb}
 }
 
 type Token struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-	Expiry       int64  `json:"expiry"`
+	Token  string `json:"token"`
+	Expiry int64  `json:"expiry"`
 }
 
-func (c *Client) SetToken(rdb *redis.Client, userID string, value Token) error {
+func (c *TokenRepositoryImpl) SetToken(userID string, value Token) error {
 	jsonValue, err := json.Marshal(value)
 	if err != nil {
 		return err
@@ -37,7 +41,7 @@ func (c *Client) SetToken(rdb *redis.Client, userID string, value Token) error {
 	return nil
 }
 
-func (c *Client) GetToken(rdb *redis.Client, userID string, target *Token) error {
+func (c *TokenRepositoryImpl) GetToken(userID string, target *Token) error {
 	val, err := c.rdb.Get(ctx, userID).Result()
 	if err != nil {
 		return err

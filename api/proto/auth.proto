@@ -32,8 +32,7 @@ message LoginRequest {
 message LoginResponse {
     int64 status = 1;
     string message = 2;
-    string access_token = 3;
-    string refresh_token = 4;
+    string token = 3;
 }
 
 service AuthService {
