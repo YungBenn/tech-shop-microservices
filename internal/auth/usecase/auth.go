@@ -75,7 +75,7 @@ func (s *AuthServiceServer) Login(ctx context.Context, req *pb.LoginRequest) (*p
 		return nil, err
 	}
 
-	tokenString, err := token.GenerateJWT(record.ID, record.Email)
+	tokenString, err := token.GenerateJWT(record)
 	if err != nil {
 		s.log.Error("Error generating JWT: ", err)
 		return nil, err

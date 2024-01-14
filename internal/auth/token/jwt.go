@@ -3,6 +3,7 @@ package token
 import (
 	"time"
 
+	"github.com/YungBenn/tech-shop-microservices/internal/auth/entity"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -12,13 +13,13 @@ type JWTClaim struct {
 	jwt.RegisteredClaims
 }
 
-func GenerateJWT(userID string, email string) (tokenString string, err error) {
+func GenerateJWT(user entity.User) (tokenString string, err error) {
 	JwtKey := []byte("secret")
 
 	expirationTime := jwt.NewNumericDate(time.Now().Add(1 * time.Hour))
 	claims := &JWTClaim{
-		UserID:           userID,
-		Email:            email,
+		UserID:           user.ID,
+		Email:            user.Email,
 		RegisteredClaims: jwt.RegisteredClaims{ExpiresAt: expirationTime},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
