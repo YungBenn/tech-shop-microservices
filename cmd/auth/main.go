@@ -10,6 +10,7 @@ import (
 	"github.com/YungBenn/tech-shop-microservices/internal/auth/repository"
 	"github.com/YungBenn/tech-shop-microservices/internal/auth/usecase"
 	"github.com/YungBenn/tech-shop-microservices/internal/postgresql"
+	"github.com/YungBenn/tech-shop-microservices/internal/auth/token"
 	"github.com/YungBenn/tech-shop-microservices/internal/redis"
 	rdb "github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
@@ -40,7 +41,7 @@ func buildServer(log *logrus.Logger, rdb *rdb.Client, db *gorm.DB, address strin
 
 	server := grpc.NewServer(grpc.KeepaliveEnforcementPolicy(keep), grpc.KeepaliveParams(kasp))
 	repo := repository.NewAuthRepository(db)
-	tokenRepo := redis.NewTokenRepository(rdb)
+	tokenRepo := token.NewTokenRepository(rdb)
 	srv := usecase.NewAuthServiceServer(log, tokenRepo, repo)
 	pb.RegisterAuthServiceServer(server, srv)
 	reflection.Register(server)

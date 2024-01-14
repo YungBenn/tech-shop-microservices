@@ -8,21 +8,20 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/YungBenn/tech-shop-microservices/internal/auth/entity"
-	"github.com/YungBenn/tech-shop-microservices/internal/auth/jwt"
 	"github.com/YungBenn/tech-shop-microservices/internal/auth/pb"
 	"github.com/YungBenn/tech-shop-microservices/internal/auth/repository"
-	"github.com/YungBenn/tech-shop-microservices/internal/redis"
+	"github.com/YungBenn/tech-shop-microservices/internal/auth/token"
 	"github.com/YungBenn/tech-shop-microservices/internal/utils"
 )
 
 type AuthServiceServer struct {
 	pb.UnimplementedAuthServiceServer
 	log  *logrus.Logger
-	rdb  redis.TokenRepository
+	rdb  token.TokenRepository
 	repo repository.AuthRepository
 }
 
-func NewAuthServiceServer(log *logrus.Logger, rdb redis.TokenRepository, repo repository.AuthRepository) pb.AuthServiceServer {
+func NewAuthServiceServer(log *logrus.Logger, rdb token.TokenRepository, repo repository.AuthRepository) pb.AuthServiceServer {
 	return &AuthServiceServer{
 		UnimplementedAuthServiceServer: pb.UnimplementedAuthServiceServer{},
 		log:                            log,
@@ -76,7 +75,7 @@ func (s *AuthServiceServer) Login(ctx context.Context, req *pb.LoginRequest) (*p
 		return nil, err
 	}
 
-	tokenString, err := jwt.GenerateJWT(record.ID, record.Email)
+	tokenString, err := token.GenerateJWT(record.ID, record.Email)
 	if err != nil {
 		s.log.Error("Error generating JWT: ", err)
 		return nil, err
@@ -84,7 +83,7 @@ func (s *AuthServiceServer) Login(ctx context.Context, req *pb.LoginRequest) (*p
 
 	tokenExpiry := time.Now().Add(1 * time.Hour).Unix()
 
-	token := redis.Token{
+	token := token.Token{
 		Token:  tokenString,
 		Expiry: tokenExpiry,
 	}
