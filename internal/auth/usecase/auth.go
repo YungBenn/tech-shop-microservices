@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/YungBenn/tech-shop-microservices/internal/auth/entity"
 	"github.com/YungBenn/tech-shop-microservices/internal/auth/pb"
@@ -43,7 +44,7 @@ func (s *AuthServiceServer) Register(ctx context.Context, req *pb.RegisterReques
 		FirstName:   req.FirstName,
 		LastName:    req.LastName,
 		PhoneNumber: req.PhoneNumber,
-		DateOfBirth: time.Time{},
+		DateOfBirth: time.Now(),
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}
@@ -58,7 +59,16 @@ func (s *AuthServiceServer) Register(ctx context.Context, req *pb.RegisterReques
 	return &pb.RegisterResponse{
 		Status:  http.StatusCreated,
 		Message: "User saved",
-		User:    &pb.RegisterRequest{},
+		User:    &pb.RegisterRequest{
+			Email:       req.Email,
+			Password:    hashedPassword,
+			FirstName:   req.FirstName,
+			LastName:    req.LastName,
+			PhoneNumber: req.Password,
+			DateOfBirth: &timestamppb.Timestamp{},
+			CreatedAt:   &timestamppb.Timestamp{},
+			UpdatedAt:   &timestamppb.Timestamp{},
+		},
 	}, nil
 }
 
@@ -69,6 +79,7 @@ func (s *AuthServiceServer) Login(ctx context.Context, req *pb.LoginRequest) (*p
 		return nil, err
 	}
 
+	s.log.Info(record.Password)
 	err = utils.CheckPassword(req.Password, record.Password)
 	if err != nil {
 		s.log.Error("Error checking password: ", err)

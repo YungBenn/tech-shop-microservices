@@ -61,7 +61,7 @@ func main() {
 		log.Error("Error loading config: ", err)
 	}
 
-	rdb := redis.NewRedis(config)
+	rdb := redis.Connect(config)
 
 	dbConfig := &postgresql.Config{
 		Host:     config.PostgresHost,
@@ -71,6 +71,7 @@ func main() {
 		Port:     config.PostgresPort,
 		SSLMode:  config.PostgresSSLMode,
 	}
+
 	db, err := postgresql.Connect(dbConfig, log)
 	if err != nil {
 		log.Panic("Error connecting to database: ", err)

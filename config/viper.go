@@ -7,6 +7,8 @@ import (
 )
 
 type EnvVars struct {
+	ClientHost         string `mapstructure:"CLIENT_HOST"`
+	ClientPort         string `mapstructure:"CLIENT_PORT"`
 	AuthServiceHost    string `mapstructure:"AUTH_SERVICE_HOST"`
 	AuthServicePort    string `mapstructure:"AUTH_SERVICE_PORT"`
 	CartServiceHost    string `mapstructure:"CART_SERVICE_HOST"`

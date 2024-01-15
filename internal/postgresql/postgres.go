@@ -3,6 +3,8 @@ package postgresql
 import (
 	"fmt"
 
+	authEntity "github.com/YungBenn/tech-shop-microservices/internal/auth/entity"
+	productEntity "github.com/YungBenn/tech-shop-microservices/internal/product/entity"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -27,6 +29,11 @@ func Connect(c *Config, log *logrus.Logger) (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	db.AutoMigrate(
+		&authEntity.User{},
+		&productEntity.Product{},
+	)
 
 	return db, nil
 }

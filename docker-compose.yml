@@ -6,41 +6,41 @@ networks:
 
 services:
 
-  mongo:
-    image: mongo
-    restart: always
-    ports:
-      - 27017:27017
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: password
-      MONGO_INITDB_DATABASE: ${MONGODB_NAME}
-    volumes:
-      - mongo-data:/data/db
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "mongo",
-          "--quiet",
-          "127.0.0.1/test",
-          "--eval",
-          "'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)'",
-        ]
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 40s
+  # mongo:
+  #   image: mongo
+  #   restart: always
+  #   ports:
+  #     - 27017:27017
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: root
+  #     MONGO_INITDB_ROOT_PASSWORD: password
+  #     MONGO_INITDB_DATABASE: ${MONGODB_NAME}
+  #   volumes:
+  #     - mongo-data:/data/db
+  #   healthcheck:
+  #     test:
+  #       [
+  #         "CMD-SHELL",
+  #         "mongo",
+  #         "--quiet",
+  #         "127.0.0.1/test",
+  #         "--eval",
+  #         "'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)'",
+  #       ]
+  #     interval: 10s
+  #     timeout: 10s
+  #     retries: 5
+  #     start_period: 40s
 
-  mongo-express:
-    image: mongo-express
-    restart: always
-    ports:
-      - 8081:8081
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: example
-      ME_CONFIG_MONGODB_URL: mongodb://root:password@mongo:27017/
+  # mongo-express:
+  #   image: mongo-express
+  #   restart: always
+  #   ports:
+  #     - 8081:8081
+  #   environment:
+  #     ME_CONFIG_MONGODB_ADMINUSERNAME: root
+  #     ME_CONFIG_MONGODB_ADMINPASSWORD: example
+  #     ME_CONFIG_MONGODB_URL: mongodb://root:password@mongo:27017/
 
   postgres:
     image: postgres:12.17-alpine3.19
@@ -66,18 +66,18 @@ services:
     ports:
       - "8081:8080"
 
-  elasticsearch:
-    image: elasticsearch:8.11.3
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    environment:
-      - discovery.type=single-node
-    healthcheck:
-      test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
-      interval: 20s
-      timeout: 1s
-      retries: 5
+  # elasticsearch:
+  #   image: elasticsearch:8.11.3
+  #   ports:
+  #     - "9200:9200"
+  #     - "9300:9300"
+  #   environment:
+  #     - discovery.type=single-node
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
+  #     interval: 20s
+  #     timeout: 1s
+  #     retries: 5
 
   redis:
     image: redis:7.2.3
@@ -104,63 +104,79 @@ services:
   #   ports:
   #     - "8787:80"
 
-  kong:
-    image: kong:3.5.0-ubuntu
-    hostname: kong
-    container_name: kong
-    environment:
-      KONG_DATABASE: 'off'
-      KONG_PROXY_ACCESS_LOG: '/dev/stdout'
-      KONG_ADMIN_ACCESS_LOG: '/dev/stdout'
-      KONG_PROXY_ERROR_LOG: '/dev/stderr'
-      KONG_ADMIN_ERROR_LOG: '/dev/stderr'
-      KONG_ADMIN_LISTEN: "0.0.0.0:8001, 0.0.0.0:8444 ssl"
-      KONG_DECLARATIVE_CONFIG: "/opt/kong/kong.yml"
-      KONG_STREAM_LISTEN: "0.0.0.0:9999 udp"
-    command: "kong start"
-    ports:
-      - "${KONG_PORT}:8000"
-      - "8443:8443"
-      - "8001:8001"
-      - "8444:8444"
-      - "9999:9999/udp"
-    volumes:
-      - ./config:/opt/kong
+  # kong:
+  #   image: kong:3.5.0-ubuntu
+  #   hostname: kong
+  #   container_name: kong
+  #   environment:
+  #     KONG_DATABASE: 'off'
+  #     KONG_PROXY_ACCESS_LOG: '/dev/stdout'
+  #     KONG_ADMIN_ACCESS_LOG: '/dev/stdout'
+  #     KONG_PROXY_ERROR_LOG: '/dev/stderr'
+  #     KONG_ADMIN_ERROR_LOG: '/dev/stderr'
+  #     KONG_ADMIN_LISTEN: "0.0.0.0:8001, 0.0.0.0:8444 ssl"
+  #     KONG_DECLARATIVE_CONFIG: "/opt/kong/kong.yml"
+  #     KONG_STREAM_LISTEN: "0.0.0.0:9999 udp"
+  #   command: "kong start"
+  #   ports:
+  #     - "${KONG_PORT}:8000"
+  #     - "8443:8443"
+  #     - "8001:8001"
+  #     - "8444:8444"
+  #     - "9999:9999/udp"
+  #   volumes:
+  #     - ./config:/opt/kong
 
+  tech-shop:
+    build:
+      context: .
+      dockerfile: ./build/tech-shop/Dockerfile
+    restart: always
+    image: tech-shop:v1
+    ports:
+      - "50050:50050"
+    environment:
+      - AUTH_SERVICE_HOST=auth-service
+    depends_on:
+      - auth-service
+  
   auth-service:
     build:
-      context: ../build/auth-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./build/auth-service/Dockerfile
     restart: always
     image: auth-service:v1
     ports:
       - "50051:50051"
+    environment:
+      - POSTGRES_HOST=postgres
+      - REDIS_HOST=redis:6379
     depends_on:
       - postgres
       - redis
 
-  cart-service:
-    build:
-      context: ../build/cart-service
-      dockerfile: Dockerfile
-    restart: always
-    image: cart-service:v1
-    ports:
-      - "50052:50052"
-    depends_on:
-      - postgres
+  # cart-service:
+  #   build:
+  #     context: ./build/cart-service
+  #     dockerfile: Dockerfile
+  #   restart: always
+  #   image: cart-service:v1
+  #   ports:
+  #     - "50052:50052"
+  #   depends_on:
+  #     - postgres
 
-  product-service:
-    build:
-      context: ../build/product-service
-      dockerfile: Dockerfile
-    restart: always
-    image: product-service:v1
-    ports:
-      - "50053:50053"
-    depends_on:
-      - mongo
-      - elasticsearch
+  # product-service:
+  #   build:
+  #     context: ./build/product-service
+  #     dockerfile: Dockerfile
+  #   restart: always
+  #   image: product-service:v1
+  #   ports:
+  #     - "50053:50053"
+  #   depends_on:
+  #     - mongo
+  #     - elasticsearch
     
 volumes:
   mongo-data:

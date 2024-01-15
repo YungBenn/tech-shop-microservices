@@ -43,9 +43,9 @@ func (u *AuthRepositoryImpl) FindUserByID(id string) (entity.User, error) {
 }
 
 func (u *AuthRepositoryImpl) FindUserByEmail(email string) (entity.User, error) {
-	var user = entity.User{Email: email}
+	var user entity.User
 
-	result := u.db.Model([]entity.User{}).First(&user)
+	result := u.db.Where(&entity.User{Email: email}).First(&user)
 	if result.RowsAffected == 0 {
 		log.Println("Error")
 	}

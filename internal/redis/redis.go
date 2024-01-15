@@ -5,7 +5,7 @@ import (
 	rdb "github.com/redis/go-redis/v9"
 )
 
-func NewRedis(env config.EnvVars) *rdb.Client {
+func Connect(env config.EnvVars) *rdb.Client {
 	rdb := rdb.NewClient(&rdb.Options{
 		Addr:     env.RedisHost,
 		DB:       env.RedisDB,

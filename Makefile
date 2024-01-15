@@ -43,10 +43,10 @@ docker.clean:
 	docker rmi grpc_training_client:v1
 
 evans:
-	evans --host localhost --port 9090 -r repl
+	evans --host localhost --port 50051 -r repl
 
-run.server:
-	go run ./cmd/server/main.go
+run.auth:
+	go run ./cmd/auth/main.go
 
 run.client:
 	go run ./cmd/client/main.go
