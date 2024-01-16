@@ -25,6 +25,26 @@ func initAuthServiceClient(c config.EnvVars) (*grpc.ClientConn, error) {
 	return conn, nil
 }
 
+func initProductServiceClient(c config.EnvVars) (*grpc.ClientConn, error) {
+	productServerUrl := fmt.Sprintf("%s:%s", c.ProductServiceHost, c.ProductServicePort)
+	conn, err := grpc.DialContext(ctx, productServerUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return nil, err
+	}
+
+	return conn, nil
+}
+
+func initCartServiceClient(c config.EnvVars) (*grpc.ClientConn, error) {
+	cartServerUrl := fmt.Sprintf("%s:%s", c.CartServiceHost, c.CartServicePort)
+	conn, err := grpc.DialContext(ctx, cartServerUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return nil, err
+	}
+
+	return conn, nil
+}
+
 func main() {
 	log := logrus.New()
 
@@ -53,5 +73,4 @@ func main() {
 
 	log.Println("Serving gRPC-Gateway on connection")
 	log.Fatalln(gwServer.ListenAndServe())
-
 }

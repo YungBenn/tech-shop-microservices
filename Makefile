@@ -1,9 +1,3 @@
-build.server:
-	go build -o ./bin/main ./cmd/server/main.go
-
-build.client:
-	go build -o ./bin/main ./cmd/client/main.go
-
 tidy:
 	go mod tidy
 
@@ -32,23 +26,16 @@ docker.build:
 	docker build -t go-grpc-http .
 
 docker.up:
-	docker compose up -d
+	docker compose -p tech-shop-microservices --env-file ./.env -f ./deployments/docker/docker-compose.yml up -d
 
 docker.down:
-	docker compose down
+	docker compose -p tech-shop-microservices --env-file ./.env -f ./deployments/docker/docker-compose.yml down
 
 docker.clean:
-	docker-compose kill && docker-compose rm -f
-	docker rmi grpc_training_server:v1
-	docker rmi grpc_training_client:v1
+	docker rmi tech-shop:v1
+	docker rmi auth-service:v1
 
 evans:
 	evans --host localhost --port 50051 -r repl
 
-run.auth:
-	go run ./cmd/auth/main.go
-
-run.client:
-	go run ./cmd/client/main.go
-
-.PHONY: sqlc proto
+.PHONY: proto.auth proto.cart proto.product docker.build docker.up docker.down docker.clean evans

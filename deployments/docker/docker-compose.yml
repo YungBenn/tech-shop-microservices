@@ -129,8 +129,8 @@ services:
 
   tech-shop:
     build:
-      context: .
-      dockerfile: ./build/tech-shop/Dockerfile
+      context: ../../
+      dockerfile: ./build/tech-shop-gateway/Dockerfile
     restart: always
     image: tech-shop:v1
     ports:
@@ -142,7 +142,7 @@ services:
   
   auth-service:
     build:
-      context: .
+      context: ../../
       dockerfile: ./build/auth-service/Dockerfile
     restart: always
     image: auth-service:v1
