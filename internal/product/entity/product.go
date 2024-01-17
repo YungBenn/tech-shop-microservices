@@ -14,6 +14,7 @@ type Product struct {
 	Discount    string             `bson:"discount,omitempty" json:"discount,omitempty"`
 	Image       []string           `bson:"image,omitempty" json:"image,omitempty"`
 	Description string             `bson:"description,omitempty" json:"description,omitempty"`
+	CreatedBy   string             `bson:"created_by,omitempty" json:"created_by,omitempty"`
 	CreatedAt   time.Time          `bson:"created_at,omitempty" json:"created_at,omitempty"`
 	UpdatedAt   time.Time          `bson:"updated_at,omitempty" json:"updated_at,omitempty"`
 }

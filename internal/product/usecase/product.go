@@ -26,7 +26,15 @@ func NewProductServiceServer(log *logrus.Logger, repo repository.ProductReposito
 	}
 }
 
+const ErrAuthUser = "Error authorizing user: "
+
 func (s *ProductServiceServer) CreateProduct(ctx context.Context, req *pb.CreateProductRequest) (*pb.CreateProductResponse, error) {
+	authPayload, err := utils.AuthorizeUser(ctx)
+	if err != nil {
+		s.log.Error(ErrAuthUser, err)
+		return nil, err
+	}
+	
 	arg := entity.Product{
 		Title:       req.Title,
 		Price:       req.Price,
@@ -34,6 +42,9 @@ func (s *ProductServiceServer) CreateProduct(ctx context.Context, req *pb.Create
 		Discount:    req.Discount,
 		Image:       req.Image,
 		Description: req.Description,
+		CreatedBy:   authPayload.UserID,
+		CreatedAt:   time.Time{},
+		UpdatedAt:   time.Time{},
 	}
 
 	product, err := s.repo.InsertProduct(ctx, arg)
@@ -84,6 +95,23 @@ func (s *ProductServiceServer) ReadProduct(ctx context.Context, req *pb.ReadProd
 }
 
 func (s *ProductServiceServer) UpdateProduct(ctx context.Context, req *pb.UpdateProductRequest) (*pb.UpdateProductResponse, error) {
+	authPayload, err := utils.AuthorizeUser(ctx)
+	if err != nil {
+		s.log.Error(ErrAuthUser, err)
+		return nil, err
+	}
+
+	findProduct, err := s.repo.FindOneProduct(ctx, req.Id)
+	if err != nil {
+		s.log.Error("Error finding product: ", err)
+		return nil, err
+	}
+
+	if findProduct.CreatedBy != authPayload.UserID {
+		s.log.Error("You are not authorized to update this product")
+		return nil, err
+	}
+	
 	arg := entity.Product{
 		Title:       req.Title,
 		Price:       req.Price,
@@ -107,7 +135,24 @@ func (s *ProductServiceServer) UpdateProduct(ctx context.Context, req *pb.Update
 }
 
 func (s *ProductServiceServer) DeleteProduct(ctx context.Context, req *pb.DeleteProductRequest) (*pb.DeleteProductResponse, error) {	
-	err := s.repo.DeleteProduct(ctx, req.Id)
+	authPayload, err := utils.AuthorizeUser(ctx)
+	if err != nil {
+		s.log.Error(ErrAuthUser, err)
+		return nil, err
+	}
+
+	findProduct, err := s.repo.FindOneProduct(ctx, req.Id)
+	if err != nil {
+		s.log.Error("Error finding product: ", err)
+		return nil, err
+	}
+
+	if findProduct.CreatedBy != authPayload.UserID {
+		s.log.Error("You are not authorized to update this product")
+		return nil, err
+	}
+	
+	err = s.repo.DeleteProduct(ctx, req.Id)
 	if err != nil {
 		s.log.Error("Error deleting product: ", err)
 		return nil, err

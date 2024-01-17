@@ -15,8 +15,9 @@ message Product {
     string discount = 5;
     repeated string image = 7;
     string description = 8;
-    google.protobuf.Timestamp created_at = 9;
-    google.protobuf.Timestamp updated_at = 10;
+    string created_by = 9;
+    google.protobuf.Timestamp created_at = 10;
+    google.protobuf.Timestamp updated_at = 11;
 }
 
 message CreateProductRequest {

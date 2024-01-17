@@ -82,17 +82,15 @@ func (s *AuthServiceServer) Login(ctx context.Context, req *pb.LoginRequest) (*p
 		return nil, err
 	}
 
-	tokenString, err := token.GenerateJWT(record)
+	tokenString, claim, err := token.GenerateJWT(record)
 	if err != nil {
 		s.log.Error("Error generating JWT: ", err)
 		return nil, err
 	}
 
-	tokenExpiry := time.Now().Add(1 * time.Hour).Unix()
-
 	token := token.Token{
 		Token:  tokenString,
-		Expiry: tokenExpiry,
+		Expiry: claim.ExpiresAt.Unix(),
 	}
 
 	err = s.rdb.SetToken(record.ID, token)

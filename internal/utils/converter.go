@@ -32,6 +32,7 @@ func ConvertProduct(product productEntity.Product) *productPb.Product {
 		Discount:    product.Discount,
 		Image:       product.Image,
 		Description: product.Description,
+		CreatedBy:   product.CreatedBy,
 		CreatedAt:   timestamppb.New(product.CreatedAt),
 		UpdatedAt:   timestamppb.New(product.UpdatedAt),
 	}

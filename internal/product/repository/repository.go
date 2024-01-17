@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/YungBenn/tech-shop-microservices/internal/mongodb"
 	"github.com/YungBenn/tech-shop-microservices/internal/product/entity"
-	"github.com/YungBenn/tech-shop-microservices/internal/utils"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -51,7 +51,7 @@ func (p *ProductRepositoryImpl) DeleteProduct(ctx context.Context, id string) er
 func (p *ProductRepositoryImpl) FindAllProducts(ctx context.Context, limit int, page int) ([]entity.Product, error) {
 	coll := p.coll
 
-	res, err := coll.Find(ctx, bson.M{}, utils.NewMongoPaginate(limit, page).GetPaginatedOpts())
+	res, err := coll.Find(ctx, bson.M{}, mongodb.NewMongoPaginate(limit, page).GetPaginatedOpts())
 	if err != nil {
 		p.log.Error("Error finding products: ", err)
 		return nil, err
