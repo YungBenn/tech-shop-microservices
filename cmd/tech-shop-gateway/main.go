@@ -55,7 +55,7 @@ func main() {
 
 	authConn, err := initAuthServiceClient(config)
 	if err != nil {
-		log.Panic("Error initializing auth service client: ", err)
+		log.Error("Error initializing auth service client: ", err)
 	}
 
 	mux := runtime.NewServeMux()

@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/YungBenn/tech-shop-microservices/internal/auth/entity"
 	"github.com/YungBenn/tech-shop-microservices/internal/auth/pb"
@@ -38,13 +37,19 @@ func (s *AuthServiceServer) Register(ctx context.Context, req *pb.RegisterReques
 		return nil, err
 	}
 
+	dateOFBirth, err := time.Parse(time.DateOnly, req.DateOfBirth)
+	if err != nil {
+		s.log.Error("Error parsing date of birth: ", err)
+		return nil, err
+	}
+
 	arg := entity.User{
 		Email:       req.Email,
 		Password:    hashedPassword,
 		FirstName:   req.FirstName,
 		LastName:    req.LastName,
 		PhoneNumber: req.PhoneNumber,
-		DateOfBirth: time.Now(),
+		DateOfBirth: dateOFBirth,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}
@@ -58,17 +63,8 @@ func (s *AuthServiceServer) Register(ctx context.Context, req *pb.RegisterReques
 	s.log.Info("User saved:	", user.ID)
 	return &pb.RegisterResponse{
 		Status:  http.StatusCreated,
-		Message: "User saved",
-		User:    &pb.RegisterRequest{
-			Email:       req.Email,
-			Password:    hashedPassword,
-			FirstName:   req.FirstName,
-			LastName:    req.LastName,
-			PhoneNumber: req.Password,
-			DateOfBirth: &timestamppb.Timestamp{},
-			CreatedAt:   &timestamppb.Timestamp{},
-			UpdatedAt:   &timestamppb.Timestamp{},
-		},
+		Message: "Register successful",
+		User:    utils.ConvertUser(arg),
 	}, nil
 }
 

@@ -35,7 +35,9 @@ docker.clean:
 	docker rmi tech-shop:v1
 	docker rmi auth-service:v1
 
+docker.restart: docker.down docker.clean docker.up
+
 evans:
 	evans --host localhost --port 50051 -r repl
 
-.PHONY: proto.auth proto.cart proto.product docker.build docker.up docker.down docker.clean evans
+.PHONY: proto.auth proto.cart proto.product docker.build docker.up docker.down docker.clean docker.restart evans

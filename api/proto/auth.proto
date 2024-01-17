@@ -7,21 +7,30 @@ import "google/api/annotations.proto";
 
 option go_package = "github.com/YungBenn/e-commerce-microservices/internal/auth/pb";
 
+message User {
+    string email = 1;
+    string password = 2;
+    string first_name = 3;
+    string last_name = 4;
+    string phone_number = 5;
+    string date_of_birth = 6;
+    google.protobuf.Timestamp created_at = 9;
+    google.protobuf.Timestamp updated_at = 10;
+}
+
 message RegisterRequest {
     string email = 1;
     string password = 2;
     string first_name = 3;
     string last_name = 4;
     string phone_number = 5;
-    google.protobuf.Timestamp date_of_birth = 6;
-    google.protobuf.Timestamp created_at = 9;
-    google.protobuf.Timestamp updated_at = 10;
+    string date_of_birth = 6;
 }
 
 message RegisterResponse {
     int64 status = 1;
     string message = 2;
-    RegisterRequest user = 3;
+    User user = 3;
 }
 
 message LoginRequest {

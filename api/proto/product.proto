@@ -29,11 +29,14 @@ message CreateProductRequest {
 }
 
 message CreateProductResponse {
-    Product product = 1;
+    int64 status = 1;
+    string message = 2;
+    Product product = 3;
 }
 
 message ListProductRequest {
     string limit = 1;
+    string offset = 2;
 }
 
 message ListProductResponse {
