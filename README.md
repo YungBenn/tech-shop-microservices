@@ -1,7 +1,15 @@
 
 # Tech Shop - Backend
 
-This project is a microservices-based tech e-commerce application. It is designed to demonstrate the use of microservices in building scalable and robust e-commerce platforms
+Tech Shop is a robust and scalable e-commerce platform built with a microservices architecture. It leverages the power of gRPC for efficient, high-performance communication between services.
+
+This project demonstrates the practical application of microservices in developing a comprehensive e-commerce platform. Each microservice is responsible for a specific functionality, ensuring a high degree of modularity and scalability.
+
+The use of gRPC provides significant benefits, including efficient communication through protocol buffers and support for multiple programming languages. This makes Tech Shop a highly flexible and interoperable solution for e-commerce platforms.
+
+Whether you're looking to understand how to architect a microservices-based application, or you're interested in the practical application of gRPC in a real-world scenario, Tech Shop provides a solid starting point.
+
+Stay tuned for more features and improvements as we continue to expand and refine Tech Shop.
 
 
 ## Software Architechture
