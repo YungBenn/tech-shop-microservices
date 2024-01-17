@@ -40,7 +40,7 @@ func buildServer(log *logrus.Logger, rdb *rdb.Client, db *gorm.DB, address strin
 	}
 
 	server := grpc.NewServer(grpc.KeepaliveEnforcementPolicy(keep), grpc.KeepaliveParams(kasp))
-	repo := repository.NewAuthRepository(db)
+	repo := repository.NewAuthRepository(db, log)
 	tokenRepo := token.NewTokenRepository(rdb)
 	srv := usecase.NewAuthServiceServer(log, tokenRepo, repo)
 	pb.RegisterAuthServiceServer(server, srv)

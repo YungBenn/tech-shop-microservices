@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/YungBenn/tech-shop-microservices/internal/auth/entity"
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
@@ -18,10 +19,11 @@ type AuthRepository interface {
 
 type AuthRepositoryImpl struct {
 	db *gorm.DB
+	log *logrus.Logger
 }
 
-func NewAuthRepository(db *gorm.DB) AuthRepository {
-	return &AuthRepositoryImpl{db}
+func NewAuthRepository(db *gorm.DB, log *logrus.Logger) AuthRepository {
+	return &AuthRepositoryImpl{db,log}
 }
 
 func (u *AuthRepositoryImpl) FindAllUsers() ([]entity.User, error) {
@@ -47,7 +49,7 @@ func (u *AuthRepositoryImpl) FindUserByEmail(email string) (entity.User, error) 
 
 	result := u.db.Where(&entity.User{Email: email}).First(&user)
 	if result.RowsAffected == 0 {
-		log.Println("Error")
+		u.log.Error("User not found")
 	}
 
 	return user, nil

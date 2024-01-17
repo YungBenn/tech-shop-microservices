@@ -35,12 +35,14 @@ message CreateProductResponse {
 }
 
 message ListProductRequest {
-    string limit = 1;
-    string offset = 2;
+    int64 limit = 1;
+    int64 page = 2;
 }
 
 message ListProductResponse {
-    repeated Product product = 1;
+    int64 limit = 1;
+    int64 page = 2;
+    repeated Product product = 5;
 }
 
 message ReadProductRequest {

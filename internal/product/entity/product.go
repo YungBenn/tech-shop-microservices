@@ -3,23 +3,17 @@ package entity
 import (
 	"time"
 
-	"github.com/google/uuid"
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Product struct {
-	gorm.Model
-	ID        string    `gorm:"type:varchar(36);primaryKey;" json:"id"`
-	Title     string    `gorm:"type:varchar(255)" json:"title"`
-	Price     string    `gorm:"type:varchar(255)" json:"price"`
-	Tag       []string  `gorm:"type:varchar(255)[]" json:"tag"`
-	Discount  string    `gorm:"type:varchar(255)" json:"discount"`
-	Image     []string  `gorm:"type:varchar(255)[]" json:"image"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
-
-func (p *Product) BeforeCreate(tx *gorm.DB) (err error) {
-	p.ID = uuid.NewString()
-	return
+	ID          primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
+	Title       string             `bson:"title,omitempty" json:"title,omitempty"`
+	Price       string             `bson:"price,omitempty" json:"price,omitempty"`
+	Tag         []string           `bson:"tag,omitempty" json:"tag,omitempty"`
+	Discount    string             `bson:"discount,omitempty" json:"discount,omitempty"`
+	Image       []string           `bson:"image,omitempty" json:"image,omitempty"`
+	Description string             `bson:"description,omitempty" json:"description,omitempty"`
+	CreatedAt   time.Time          `bson:"created_at,omitempty" json:"created_at,omitempty"`
+	UpdatedAt   time.Time          `bson:"updated_at,omitempty" json:"updated_at,omitempty"`
 }

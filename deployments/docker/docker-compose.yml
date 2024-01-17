@@ -166,17 +166,19 @@ services:
   #   depends_on:
   #     - postgres
 
-  # product-service:
-  #   build:
-  #     context: ./build/product-service
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   image: product-service:v1
-  #   ports:
-  #     - "50053:50053"
-  #   depends_on:
-  #     - mongo
-  #     - elasticsearch
+  product-service:
+    build:
+      context: ./build/product-service
+      dockerfile: Dockerfile
+    restart: always
+    image: product-service:v1
+    ports:
+      - "50053:50053"
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017
+    depends_on:
+      - mongo
+      - elasticsearch
     
 volumes:
   mongo-data:
