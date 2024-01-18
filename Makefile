@@ -34,6 +34,7 @@ docker.down:
 docker.clean:
 	docker rmi tech-shop:v1
 	docker rmi auth-service:v1
+	docker rmi product-service:v1
 
 docker.restart: docker.down docker.clean docker.up
 

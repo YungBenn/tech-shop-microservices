@@ -73,7 +73,7 @@ message DeleteProductRequest {
 }
 
 message DeleteProductResponse {
-    string id = 1;
+    string message = 1;
 }
 
 service ProductService {

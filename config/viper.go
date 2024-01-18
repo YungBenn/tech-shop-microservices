@@ -23,7 +23,7 @@ type EnvVars struct {
 	PostgresPassword   string `mapstructure:"POSTGRES_PASSWORD"`
 	PostgresDB         string `mapstructure:"POSTGRES_DB"`
 	PostgresSSLMode    string `mapstructure:"POSTGRES_SSL_MODE"`
-	ElasticsearchURL  string `mapstructure:"ELASTICSEARCH_URL"`
+	ElasticsearchURL   string `mapstructure:"ELASTICSEARCH_URL"`
 	RedisHost          string `mapstructure:"REDIS_HOST"`
 	RedisDB            int    `mapstructure:"REDIS_DB"`
 }

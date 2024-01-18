@@ -7,6 +7,7 @@ import (
 
 	"github.com/YungBenn/tech-shop-microservices/config"
 	authSvc "github.com/YungBenn/tech-shop-microservices/internal/auth/pb"
+	productSvc "github.com/YungBenn/tech-shop-microservices/internal/product/pb"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -57,12 +58,22 @@ func main() {
 	if err != nil {
 		log.Error("Error initializing auth service client: ", err)
 	}
+	
+	productConn, err := initProductServiceClient(config)
+	if err != nil {
+		log.Error("Error initializing product service client: ", err)
+	}
 
 	mux := runtime.NewServeMux()
 
 	err = authSvc.RegisterAuthServiceHandler(ctx, mux, authConn)
 	if err != nil {
 		log.Panic("Error registering auth service handler: ", err)
+	}
+	
+	err = productSvc.RegisterProductServiceHandler(ctx, mux, productConn)
+	if err != nil {
+		log.Panic("Error registering product service handler: ", err)
 	}
 
 	clientUrl := fmt.Sprintf("%s:%s", config.ClientHost, config.ClientPort)

@@ -10,6 +10,8 @@ import (
 	"github.com/YungBenn/tech-shop-microservices/internal/product/repository"
 	"github.com/YungBenn/tech-shop-microservices/internal/utils"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type ProductServiceServer struct {
@@ -32,7 +34,7 @@ func (s *ProductServiceServer) CreateProduct(ctx context.Context, req *pb.Create
 	authPayload, err := utils.AuthorizeUser(ctx)
 	if err != nil {
 		s.log.Error(ErrAuthUser, err)
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "Error authorizing user: %v", err)
 	}
 	
 	arg := entity.Product{
@@ -50,14 +52,14 @@ func (s *ProductServiceServer) CreateProduct(ctx context.Context, req *pb.Create
 	product, err := s.repo.InsertProduct(ctx, arg)
 	if err != nil {
 		s.log.Error("Error saving product: ", err)
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "Error saving product: %v", err)
 	}
 
 	s.log.Info("Product saved: ", product.ID)
 	return &pb.CreateProductResponse{
 		Status:  http.StatusOK,
 		Message: "Product created successful",
-		Product: utils.ConvertProduct(arg),
+		Product: utils.ConvertProduct(*product),
 	}, nil
 }
 
@@ -65,7 +67,7 @@ func (s *ProductServiceServer) ListProducts(ctx context.Context, req *pb.ListPro
     products, err := s.repo.FindAllProducts(ctx, int(req.Limit), int(req.Page))
     if err != nil {
         s.log.Error("Error listing products: ", err)
-        return nil, err
+        return nil, status.Errorf(codes.Internal, "Error listing products: %v", err)
     }
 
     productList := make([]*pb.Product, len(products))
@@ -85,7 +87,7 @@ func (s *ProductServiceServer) ReadProduct(ctx context.Context, req *pb.ReadProd
 	product, err := s.repo.FindOneProduct(ctx, req.Id)
 	if err != nil {
 		s.log.Error("Error reading product: ", err)
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "Error reading product: %v", err)
 	}
 
 	s.log.Info("Reading product successful")
@@ -98,18 +100,18 @@ func (s *ProductServiceServer) UpdateProduct(ctx context.Context, req *pb.Update
 	authPayload, err := utils.AuthorizeUser(ctx)
 	if err != nil {
 		s.log.Error(ErrAuthUser, err)
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "Error authorizing user: %v", err)
 	}
 
 	findProduct, err := s.repo.FindOneProduct(ctx, req.Id)
 	if err != nil {
 		s.log.Error("Error finding product: ", err)
-		return nil, err
+		return nil, status.Errorf(codes.NotFound, "Error finding product: %v", err)
 	}
 
 	if findProduct.CreatedBy != authPayload.UserID {
 		s.log.Error("You are not authorized to update this product")
-		return nil, err
+		return nil, status.Errorf(codes.PermissionDenied, "You are not authorized to update this product")
 	}
 	
 	arg := entity.Product{
@@ -125,12 +127,12 @@ func (s *ProductServiceServer) UpdateProduct(ctx context.Context, req *pb.Update
 	product, err := s.repo.UpdateProduct(ctx, req.Id, arg)
 	if err != nil {
 		s.log.Error("Error updating product: ", err)
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "Error updating product: %v", err)
 	}
 
 	s.log.Info("Product updated: ", product.ID)
 	return &pb.UpdateProductResponse{
-		Product: utils.ConvertProduct(arg),
+		Product: utils.ConvertProduct(*product),
 	}, nil
 }
 
@@ -138,28 +140,28 @@ func (s *ProductServiceServer) DeleteProduct(ctx context.Context, req *pb.Delete
 	authPayload, err := utils.AuthorizeUser(ctx)
 	if err != nil {
 		s.log.Error(ErrAuthUser, err)
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "Error authorizing user: %v", err)
 	}
 
 	findProduct, err := s.repo.FindOneProduct(ctx, req.Id)
 	if err != nil {
 		s.log.Error("Error finding product: ", err)
-		return nil, err
+		return nil, status.Errorf(codes.NotFound, "Error finding product: %v", err)
 	}
 
 	if findProduct.CreatedBy != authPayload.UserID {
-		s.log.Error("You are not authorized to update this product")
-		return nil, err
+		s.log.Error("You are not authorized to delete this product")
+		return nil, status.Errorf(codes.PermissionDenied, "You are not authorized to delete this product")
 	}
 	
 	err = s.repo.DeleteProduct(ctx, req.Id)
 	if err != nil {
 		s.log.Error("Error deleting product: ", err)
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "Error deleting product: %v", err)
 	}
 
 	s.log.Info("Product deleted: ", req.Id)
 	return &pb.DeleteProductResponse{
-		Id: req.Id,
+		Message: "Product deleted successful: " + req.Id,
 	}, nil
 }

@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/YungBenn/tech-shop-microservices/internal/auth/entity"
 	"github.com/YungBenn/tech-shop-microservices/internal/auth/pb"
@@ -34,13 +36,13 @@ func (s *AuthServiceServer) Register(ctx context.Context, req *pb.RegisterReques
 	hashedPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
 		s.log.Error("Error hashing password: ", err)
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "Error hashing password: %v", err)
 	}
 
 	dateOFBirth, err := time.Parse(time.DateOnly, req.DateOfBirth)
 	if err != nil {
 		s.log.Error("Error parsing date of birth: ", err)
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "Error parsing date of birth: %v", err)
 	}
 
 	arg := entity.User{
@@ -57,7 +59,7 @@ func (s *AuthServiceServer) Register(ctx context.Context, req *pb.RegisterReques
 	user, err := s.repo.SaveUser(arg)
 	if err != nil {
 		s.log.Error("Error saving user:	", err)
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "Error saving user: %v", err)
 	}
 
 	s.log.Info("User saved:	", user.ID)
@@ -72,20 +74,20 @@ func (s *AuthServiceServer) Login(ctx context.Context, req *pb.LoginRequest) (*p
 	record, err := s.repo.FindUserByEmail(req.Email)
 	if err != nil {
 		s.log.Error("Error finding user: ", err)
-		return nil, err
+		return nil, status.Errorf(codes.NotFound, "Error finding user: %v", err)
 	}
 
 	s.log.Info(record.Password)
 	err = utils.CheckPassword(req.Password, record.Password)
 	if err != nil {
 		s.log.Error("Error checking password: ", err)
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "Error checking password: %v", err)
 	}
 
 	tokenString, claim, err := token.GenerateJWT(record)
 	if err != nil {
 		s.log.Error("Error generating JWT: ", err)
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "Error generating JWT: %v", err)
 	}
 
 	token := token.Token{
@@ -96,7 +98,7 @@ func (s *AuthServiceServer) Login(ctx context.Context, req *pb.LoginRequest) (*p
 	err = s.rdb.SetToken(record.ID, token)
 	if err != nil {
 		s.log.Error("Error setting token: ", err)
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "Error setting token: %v", err)
 	}
 
 	s.log.Info("User logged in: ", record.ID)
