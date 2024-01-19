@@ -16,7 +16,8 @@ type EnvVars struct {
 	ProductServiceHost string `mapstructure:"PRODUCT_SERVICE_HOST"`
 	ProductServicePort string `mapstructure:"PRODUCT_SERVICE_PORT"`
 	MongodbURI         string `mapstructure:"MONGODB_URI"`
-	MongodbName        string `mapstructure:"MONGODB_NAME"`
+	MongodbProductName string `mapstructure:"MONGODB_PRODUCT"`
+	MongodbCartName    string `mapstructure:"MONGODB_CART"`
 	PostgresHost       string `mapstructure:"POSTGRES_HOST"`
 	PostgresPort       string `mapstructure:"POSTGRES_PORT"`
 	PostgresUser       string `mapstructure:"POSTGRES_USER"`

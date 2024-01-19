@@ -14,7 +14,7 @@ import (
 
 type ProductRepository interface {
 	InsertProduct(ctx context.Context, product entity.Product) (*entity.Product, error)
-	FindAllProducts(ctx context.Context, limit int, page int) ([]entity.Product, error)
+	FindAllProducts(ctx context.Context, limit int, page int) ([]entity.Product, *mongodb.MongoPaginate, error)
 	FindOneProduct(ctx context.Context, id string) (*entity.Product, error)
 	UpdateProduct(ctx context.Context, id string, product entity.Product) (*entity.Product, error)
 	DeleteProduct(ctx context.Context, id string) error
@@ -48,22 +48,37 @@ func (p *ProductRepositoryImpl) DeleteProduct(ctx context.Context, id string) er
 	return nil
 }
 
-func (p *ProductRepositoryImpl) FindAllProducts(ctx context.Context, limit int, page int) ([]entity.Product, error) {
+func (p *ProductRepositoryImpl) FindAllProducts(ctx context.Context, limit int, page int) ([]entity.Product, *mongodb.MongoPaginate, error) {
 	coll := p.coll
 
-	res, err := coll.Find(ctx, bson.M{}, mongodb.NewMongoPaginate(limit, page).GetPaginatedOpts())
+	pagination := mongodb.NewMongoPaginate(limit, page)
+
+	totalRows, err := coll.CountDocuments(ctx, bson.M{})
+    if err != nil {
+        p.log.Error("Error counting products: ", err)
+        return nil, nil, err
+    }
+
+	totalPages := pagination.CalculateTotalPages(totalRows)
+
+	paginationData := mongodb.MongoPaginate{
+		TotalRows:  totalRows,
+		TotalPages: totalPages,
+	}
+
+	res, err := coll.Find(ctx, bson.M{}, pagination.GetPaginatedOpts())
 	if err != nil {
 		p.log.Error("Error finding products: ", err)
-		return nil, err
+		return nil, nil, err
 	}
 
 	products := make([]entity.Product, 0)
 	if err = res.All(ctx, &products); err != nil {
 		p.log.Error("Error decoding products: ", err)
-		return nil, err
+		return nil, nil, err
 	}
 
-	return products, nil
+	return products, &paginationData, nil
 }
 
 func (p *ProductRepositoryImpl) FindOneProduct(ctx context.Context, id string) (*entity.Product, error) {

@@ -64,7 +64,7 @@ func (s *ProductServiceServer) CreateProduct(ctx context.Context, req *pb.Create
 }
 
 func (s *ProductServiceServer) ListProducts(ctx context.Context, req *pb.ListProductRequest) (*pb.ListProductResponse, error) {
-    products, err := s.repo.FindAllProducts(ctx, int(req.Limit), int(req.Page))
+    products, paginationData, err := s.repo.FindAllProducts(ctx, int(req.Limit), int(req.Page))
     if err != nil {
         s.log.Error("Error listing products: ", err)
         return nil, status.Errorf(codes.Internal, "Error listing products: %v", err)
@@ -77,9 +77,11 @@ func (s *ProductServiceServer) ListProducts(ctx context.Context, req *pb.ListPro
 
     s.log.Info("Listing products successful")
     return &pb.ListProductResponse{
-        Limit:   req.Limit,
-        Page:    req.Page,
-        Product: productList,
+    	Limit:      req.Limit,
+    	Page:       req.Page,
+    	TotalRows:  paginationData.TotalRows,
+    	TotalPages: paginationData.TotalPages,
+    	Product:    productList,
     }, nil
 }
 

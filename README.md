@@ -14,7 +14,7 @@ Stay tuned for more features and improvements as we continue to expand and refin
 
 ## Software Architechture
 
-![tech-shop-architechture](tech-shop-architechture.png)
+![tech-shop-architechture](tech-shop-architechture-2.png)
 ## Run Locally with Docker
 
 Clone the project

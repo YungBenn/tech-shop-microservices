@@ -38,6 +38,9 @@ docker.clean:
 
 docker.restart: docker.down docker.clean docker.up
 
+kompose:
+	kompose convert -f ./deployments/docker/docker-compose.yml -o ./deployments/k8s
+
 evans:
 	evans --host localhost --port 50051 -r repl
 

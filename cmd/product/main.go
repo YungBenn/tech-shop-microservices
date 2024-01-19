@@ -57,7 +57,7 @@ func main() {
 		log.Error("Error loading config: ", err)
 	}
 
-	db, err := mongodb.ConnectDB(config.MongodbURI, config.MongodbName)
+	db, err := mongodb.ConnectDB(config.MongodbURI, config.MongodbProductName)
 	if err != nil {
 		log.Fatalf("Error connecting to MongoDB: %s", err)
 	}

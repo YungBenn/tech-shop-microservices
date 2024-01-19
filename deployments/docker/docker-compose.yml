@@ -88,44 +88,6 @@ services:
       timeout: 1s
       retries: 5
 
-  # krakend:
-  #   container_name: krakend
-  #   image: devopsfaith/krakend:2.5
-  #   volumes:
-  #     - ../config:/etc/krakend
-  #   ports:
-  #     - "5000:5000"
-  #     - "8090:8090"
-
-  # kraken_designer:
-  #   image: krakend/designer:2.4
-  #   container_name: krakend_designer
-  #   ports:
-  #     - "8787:80"
-
-  # kong:
-  #   image: kong:3.5.0-ubuntu
-  #   hostname: kong
-  #   container_name: kong
-  #   environment:
-  #     KONG_DATABASE: 'off'
-  #     KONG_PROXY_ACCESS_LOG: '/dev/stdout'
-  #     KONG_ADMIN_ACCESS_LOG: '/dev/stdout'
-  #     KONG_PROXY_ERROR_LOG: '/dev/stderr'
-  #     KONG_ADMIN_ERROR_LOG: '/dev/stderr'
-  #     KONG_ADMIN_LISTEN: "0.0.0.0:8001, 0.0.0.0:8444 ssl"
-  #     KONG_DECLARATIVE_CONFIG: "/opt/kong/kong.yml"
-  #     KONG_STREAM_LISTEN: "0.0.0.0:9999 udp"
-  #   command: "kong start"
-  #   ports:
-  #     - "${KONG_PORT}:8000"
-  #     - "8443:8443"
-  #     - "8001:8001"
-  #     - "8444:8444"
-  #     - "9999:9999/udp"
-  #   volumes:
-  #     - ./config:/opt/kong
-
   tech-shop:
     build:
       context: ../../
@@ -165,7 +127,7 @@ services:
   #   ports:
   #     - "50052:50052"
   #   depends_on:
-  #     - postgres
+  #     - mongo
 
   product-service:
     build:
