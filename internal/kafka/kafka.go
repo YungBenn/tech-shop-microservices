@@ -3,7 +3,6 @@ package kafka
 import (
 	"github.com/YungBenn/tech-shop-microservices/config"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
-	"github.com/sirupsen/logrus"
 )
 
 type KafkaProducer struct {
@@ -12,7 +11,7 @@ type KafkaProducer struct {
 }
 
 // NewKafkaProducer instantiates the Kafka producer using configuration defined in environment variables.
-func NewKafkaProducer(conf config.EnvVars, log *logrus.Logger) (*KafkaProducer, error) {
+func NewKafkaProducer(conf config.EnvVars) (*KafkaProducer, error) {
 	config := kafka.ConfigMap{
 		"bootstrap.servers": conf.KafkaHost,
 	}
