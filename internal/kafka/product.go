@@ -15,7 +15,7 @@ type KafkaRepository interface {
 type KafkaImpl struct {
 	Producer *kafka.Producer
 	Topic    string
-	Url 	 string
+	Url      string
 }
 
 func NewKafkaRepository(Producer *kafka.Producer, Topic string, Url string) KafkaRepository {
@@ -30,6 +30,7 @@ type ProductData struct {
 	Discount    string
 	Image       []string
 	Description string
+	CreatedBy   string
 }
 
 func (k *KafkaImpl) Publish(product entity.Product) error {
@@ -51,6 +52,7 @@ func (k *KafkaImpl) Publish(product entity.Product) error {
 		Discount:    product.Discount,
 		Image:       product.Image,
 		Description: product.Description,
+		CreatedBy:   product.CreatedBy,
 	}
 
 	payload, err := ser.Serialize(k.Topic, &value)
@@ -60,10 +62,10 @@ func (k *KafkaImpl) Publish(product entity.Product) error {
 
 	err = k.Producer.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{
-			Topic:       &k.Topic,
-			Partition:   kafka.PartitionAny,
+			Topic:     &k.Topic,
+			Partition: kafka.PartitionAny,
 		},
-		Value:          payload,
+		Value: payload,
 	}, nil)
 	if err != nil {
 		return err
