@@ -6,6 +6,7 @@ proto.auth:
 	protoc --proto_path=api/proto --go_out=internal/auth/pb --go_opt=paths=source_relative \
 	--go-grpc_out=internal/auth/pb --go-grpc_opt=paths=source_relative \
 	--grpc-gateway_out=internal/auth/pb --grpc-gateway_opt=paths=source_relative \
+	--openapiv2_out=api/swagger --openapiv2_opt=allow_merge=true,merge_file_name=auth-service \
 	api/proto/auth.proto
 
 proto.cart:
@@ -20,10 +21,8 @@ proto.product:
 	protoc --proto_path=api/proto --go_out=internal/product/pb --go_opt=paths=source_relative \
 	--go-grpc_out=internal/product/pb --go-grpc_opt=paths=source_relative \
 	--grpc-gateway_out=internal/product/pb --grpc-gateway_opt=paths=source_relative \
+	--openapiv2_out=api/swagger --openapiv2_opt=allow_merge=true,merge_file_name=product-service \
 	api/proto/product.proto
-
-docker.build:
-	docker build -t go-grpc-http .
 
 docker.up:
 	docker compose -p tech-shop-microservices --env-file ./.env -f ./deployments/docker/docker-compose.yml up -d

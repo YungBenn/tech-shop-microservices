@@ -52,12 +52,12 @@ func buildServer(log *logrus.Logger, db *mongo.Database, address string)  {
 func main() {
 	log := logrus.New()
 
-	config, err := config.LoadConfig()
+	conf, err := config.LoadConfig()
 	if err != nil {
 		log.Error("Error loading config: ", err)
 	}
 
-	db, err := mongodb.ConnectDB(config.MongodbURI, config.MongodbProductName)
+	db, err := mongodb.ConnectDB(conf.MongodbURI, conf.MongodbProductName)
 	if err != nil {
 		log.Fatalf("Error connecting to MongoDB: %s", err)
 	}
@@ -68,6 +68,6 @@ func main() {
 		}
 	}(db)
 
-	productServerUrl := fmt.Sprintf("%s:%s", config.ProductServiceHost, config.ProductServicePort)
+	productServerUrl := fmt.Sprintf("%s:%s", conf.ProductServiceHost, conf.ProductServicePort)
 	buildServer(log, db, productServerUrl)
 }

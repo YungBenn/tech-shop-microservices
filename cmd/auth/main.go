@@ -56,20 +56,20 @@ func buildServer(log *logrus.Logger, rdb *rdb.Client, db *gorm.DB, address strin
 func main() {
 	log := logrus.New()
 
-	config, err := config.LoadConfig()
+	conf, err := config.LoadConfig()
 	if err != nil {
 		log.Error("Error loading config: ", err)
 	}
 
-	rdb := redis.Connect(config)
+	rdb := redis.Connect(conf)
 
 	dbConfig := &postgresql.Config{
-		Host:     config.PostgresHost,
-		User:     config.PostgresUser,
-		Password: config.PostgresPassword,
-		DBName:   config.PostgresDB,
-		Port:     config.PostgresPort,
-		SSLMode:  config.PostgresSSLMode,
+		Host:     conf.PostgresHost,
+		User:     conf.PostgresUser,
+		Password: conf.PostgresPassword,
+		DBName:   conf.PostgresDB,
+		Port:     conf.PostgresPort,
+		SSLMode:  conf.PostgresSSLMode,
 	}
 
 	db, err := postgresql.Connect(dbConfig, log)
@@ -77,6 +77,6 @@ func main() {
 		log.Panic("Error connecting to database: ", err)
 	}
 
-	authServerUrl := fmt.Sprintf("%s:%s", config.AuthServiceHost, config.AuthServicePort)
+	authServerUrl := fmt.Sprintf("%s:%s", conf.AuthServiceHost, conf.AuthServicePort)
 	buildServer(log, rdb, db, authServerUrl)
 }

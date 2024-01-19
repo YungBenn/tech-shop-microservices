@@ -27,6 +27,8 @@ type EnvVars struct {
 	ElasticsearchURL   string `mapstructure:"ELASTICSEARCH_URL"`
 	RedisHost          string `mapstructure:"REDIS_HOST"`
 	RedisDB            int    `mapstructure:"REDIS_DB"`
+	KafkaHost          string `mapstructure:"KAFKA_HOST"`
+	KafkaTopic         string `mapstructure:"KAFKA_TOPIC"`
 }
 
 func LoadConfig() (config EnvVars, err error) {

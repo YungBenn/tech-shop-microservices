@@ -4,8 +4,21 @@ package pb;
 
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
 option go_package = "github.com/YungBenn/e-commerce-microservices/internal/product/pb";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+    info: {
+        title: "Product Service";
+        version: "1.0.0";
+        contact: {
+            name: "YungBenn";
+            url: "https://github.com/YungBenn/e-commerce-microservices";
+            email: "rubenadisuryo22@gmail.com";
+        };
+    };
+};
 
 message Product {
     string id = 1;
