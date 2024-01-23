@@ -37,7 +37,6 @@ func NewKafkaConsumer(conf config.EnvVars, groupID string) (*KafkaConsumer, erro
 		"bootstrap.servers":  conf.KafkaHost,
 		"group.id":           groupID,
 		"auto.offset.reset":  "earliest",
-		"enable.auto.commit": false,
 	}
 
 	client, err := kafka.NewConsumer(&config)

@@ -18,13 +18,13 @@ type TokenRepositoryImpl struct {
 	rdb *redis.Client
 }
 
-func NewTokenRepository(rdb *redis.Client) TokenRepository {
-	return &TokenRepositoryImpl{rdb}
-}
-
 type Token struct {
 	Token  string `json:"token"`
 	Expiry int64  `json:"expiry"`
+}
+
+func NewTokenRepository(rdb *redis.Client) TokenRepository {
+	return &TokenRepositoryImpl{rdb}
 }
 
 func (c *TokenRepositoryImpl) SetToken(userID string, value Token) error {

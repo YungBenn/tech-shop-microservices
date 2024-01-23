@@ -1,25 +1,19 @@
-package kafka
+package message
 
 import (
+	"encoding/json"
+
 	"github.com/YungBenn/tech-shop-microservices/internal/product/entity"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
-	"github.com/confluentinc/confluent-kafka-go/v2/schemaregistry"
-	"github.com/confluentinc/confluent-kafka-go/v2/schemaregistry/serde"
-	"github.com/confluentinc/confluent-kafka-go/v2/schemaregistry/serde/jsonschema"
 )
 
-type KafkaRepository interface {
+type KafkaProducerRepository interface {
 	Publish(product entity.Product) error
 }
 
 type KafkaImpl struct {
 	Producer *kafka.Producer
 	Topic    string
-	Url      string
-}
-
-func NewKafkaRepository(Producer *kafka.Producer, Topic string, Url string) KafkaRepository {
-	return &KafkaImpl{Producer, Topic, Url}
 }
 
 type ProductData struct {
@@ -31,20 +25,16 @@ type ProductData struct {
 	Image       []string
 	Description string
 	CreatedBy   string
+	CreatedAt   int64
+	UpdatedAt   int64
+}
+
+func NewKafkaProducerRepository(Producer *kafka.Producer, Topic string) KafkaProducerRepository {
+	return &KafkaImpl{Producer, Topic}
 }
 
 func (k *KafkaImpl) Publish(product entity.Product) error {
-	client, err := schemaregistry.NewClient(schemaregistry.NewConfig(k.Url))
-	if err != nil {
-		return err
-	}
-
-	ser, err := jsonschema.NewSerializer(client, serde.ValueSerde, jsonschema.NewSerializerConfig())
-	if err != nil {
-		return err
-	}
-
-	value := ProductData{
+	productData := ProductData{
 		ID:          product.ID.Hex(),
 		Title:       product.Title,
 		Price:       product.Price,
@@ -53,9 +43,11 @@ func (k *KafkaImpl) Publish(product entity.Product) error {
 		Image:       product.Image,
 		Description: product.Description,
 		CreatedBy:   product.CreatedBy,
+		CreatedAt:   product.CreatedAt.Unix(),
+		UpdatedAt:   product.UpdatedAt.Unix(),
 	}
 
-	payload, err := ser.Serialize(k.Topic, &value)
+	value, err := json.Marshal(productData)
 	if err != nil {
 		return err
 	}
@@ -65,7 +57,7 @@ func (k *KafkaImpl) Publish(product entity.Product) error {
 			Topic:     &k.Topic,
 			Partition: kafka.PartitionAny,
 		},
-		Value: payload,
+		Value: value,
 	}, nil)
 	if err != nil {
 		return err
