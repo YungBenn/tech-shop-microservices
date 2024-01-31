@@ -6,14 +6,16 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/YungBenn/tech-shop-microservices/internal/product/entity"
+	"github.com/YungBenn/tech-shop-microservices/internal/search/entity"
 	es "github.com/elastic/go-elasticsearch/v8"
 )
 
 type EsProduct interface {
 	CreateIndex(ctx context.Context, index string) error
-	IndexProduct(ctx context.Context, product entity.Product) error
-	SearchProduct(ctx context.Context, query string) ([]entity.Product, error)
+	IndexProduct(ctx context.Context, product entity.ProductData) error
+	SearchProduct(ctx context.Context, query string) ([]entity.ProductData, error)
+	UpdateProduct(ctx context.Context, product entity.ProductData) error
+	// TODO: Delete Product
 }
 
 type EsProductImpl struct {
@@ -57,7 +59,8 @@ func (sp *EsProductImpl) CreateIndex(ctx context.Context, index string) error {
 
 	res, err := sp.client.Indices.Create(
 		index, 
-		sp.client.Indices.Create.WithBody(strings.NewReader(mapping)))
+		sp.client.Indices.Create.WithBody(strings.NewReader(mapping)),
+	)
 	if err != nil {
 		return err
 	}
@@ -67,9 +70,9 @@ func (sp *EsProductImpl) CreateIndex(ctx context.Context, index string) error {
 	return nil
 }
 
-func (sp *EsProductImpl) IndexProduct(ctx context.Context, product entity.Product) error {
+func (sp *EsProductImpl) IndexProduct(ctx context.Context, product entity.ProductData) error {
 	body := indexedProduct{
-		ID:          product.ID.Hex(),
+		ID:          product.ID,
 		Title:       product.Title,
 		Price:       product.Price,
 		Tag:         product.Tag,
@@ -77,8 +80,8 @@ func (sp *EsProductImpl) IndexProduct(ctx context.Context, product entity.Produc
 		Image:       product.Image,
 		Description: product.Description,
 		CreatedBy:   product.CreatedBy,
-		CreatedAt:   product.CreatedAt.Unix(),
-		UpdatedAt:   product.UpdatedAt.Unix(),
+		CreatedAt:   product.CreatedAt,
+		UpdatedAt:   product.UpdatedAt,
 	}
 
 	data, err := json.Marshal(body)
@@ -94,7 +97,7 @@ func (sp *EsProductImpl) IndexProduct(ctx context.Context, product entity.Produc
 	return nil
 }
 
-func (sp *EsProductImpl) SearchProduct(ctx context.Context, query string) ([]entity.Product, error) {
+func (sp *EsProductImpl) SearchProduct(ctx context.Context, query string) ([]entity.ProductData, error) {
 	req := `{
 		"query": {
 			"multi_match": {
@@ -120,10 +123,10 @@ func (sp *EsProductImpl) SearchProduct(ctx context.Context, query string) ([]ent
 
 	var result map[string]interface{}
 
-	var products []entity.Product
+	var products []entity.ProductData
 
 	for _, hit := range result["hits"].(map[string]interface{})["hits"].([]interface{}) {
-		product := entity.Product{}
+		product := entity.ProductData{}
 		data, _ := json.Marshal(hit.(map[string]interface{})["_source"])
 		json.Unmarshal(data, &product)
 
@@ -131,4 +134,35 @@ func (sp *EsProductImpl) SearchProduct(ctx context.Context, query string) ([]ent
 	}
 
 	return products, nil
+}
+
+func (sp *EsProductImpl) UpdateProduct(ctx context.Context, product entity.ProductData) error {
+	body := indexedProduct{
+		ID:          product.ID,
+		Title:       product.Title,
+		Price:       product.Price,
+		Tag:         product.Tag,
+		Discount:    product.Discount,
+		Image:       product.Image,
+		Description: product.Description,
+		CreatedBy:   product.CreatedBy,
+		CreatedAt:   product.CreatedAt,
+		UpdatedAt:   product.UpdatedAt,
+	}
+
+	data, err := json.Marshal(body)
+	if err != nil {
+		return err
+	}
+
+	_, err = sp.client.Update(
+		sp.index,
+		product.ID,
+		strings.NewReader(string(data)),
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

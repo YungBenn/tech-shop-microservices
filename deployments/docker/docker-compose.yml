@@ -52,6 +52,7 @@ services:
   #     - "9300:9300"
   #   environment:
   #     - discovery.type=single-node
+  #     - xpack.security.enabled=false
 
   redis:
     image: redis:7.2.3
@@ -90,24 +91,10 @@ services:
   #     KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
   #     KAFKA_JMX_PORT: 9101
   #     KAFKA_JMX_HOSTNAME: localhost
-  #     KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8081
   #     CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker:29092
   #     CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
   #     CONFLUENT_METRICS_ENABLE: 'true'
   #     CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
-
-  # schema-registry:
-  #   image: confluentinc/cp-schema-registry:7.5.0
-  #   hostname: schema-registry
-  #   container_name: schema-registry
-  #   depends_on:
-  #     - broker
-  #   ports:
-  #     - "8081:8081"
-  #   environment:
-  #     SCHEMA_REGISTRY_HOST_NAME: schema-registry
-  #     SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:29092'
-  #     SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
 
   tech-shop:
     build:
@@ -123,7 +110,7 @@ services:
     depends_on:
       - auth-service
       - product-service
-  
+
   auth-service:
     build:
       context: ../../
@@ -162,6 +149,22 @@ services:
       - MONGODB_URI=mongodb://root:password@mongo:27017
     depends_on:
       - mongo
+
+  # search-service:
+  #   build:
+  #     context: ../../
+  #     dockerfile: ./build/search-service/Dockerfile
+  #   restart: always
+  #   image: search-service:v1
+  #   ports:
+  #     - "50054:50054"
+  #   environment:
+  #     - ELASTICSEARCH_URL=elasticsearch:9200
+  #     - KAFKA_HOST=broker:9092
+  #     - KAFKA_TOPIC=product
+  #   depends_on:
+  #     - elasticsearch
+  #     - broker
     
 volumes:
   mongo-data:

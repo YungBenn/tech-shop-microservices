@@ -1,0 +1,292 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Search Service",
+    "version": "1.0.0",
+    "contact": {
+      "name": "YungBenn",
+      "url": "https://github.com/YungBenn/tech-shop-microservices",
+      "email": "rubenadisuryo22@gmail.com"
+    }
+  },
+  "tags": [
+    {
+      "name": "SearchService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/search": {
+      "post": {
+        "operationId": "SearchService_SearchProduct",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbSearchProductResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbSearchProductRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SearchService"
+        ]
+      },
+      "put": {
+        "operationId": "SearchService_UpdateIndexProduct",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbUpdateIndexProductResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbUpdateIndexProductRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SearchService"
+        ]
+      }
+    },
+    "/v1/search/index": {
+      "post": {
+        "operationId": "SearchService_CreateIndex",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbCreateIndexResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbCreateIndexRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SearchService"
+        ]
+      }
+    },
+    "/v1/search/index/product": {
+      "post": {
+        "operationId": "SearchService_IndexProduct",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbIndexProductResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/pbIndexProductRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SearchService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "pbCreateIndexRequest": {
+      "type": "object",
+      "properties": {
+        "index": {
+          "type": "string"
+        }
+      }
+    },
+    "pbCreateIndexResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "pbIndexProductRequest": {
+      "type": "object",
+      "properties": {
+        "product": {
+          "$ref": "#/definitions/pbProductData"
+        }
+      }
+    },
+    "pbIndexProductResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "pbProductData": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "price": {
+          "type": "string"
+        },
+        "tag": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "discount": {
+          "type": "string"
+        },
+        "image": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "type": "string"
+        },
+        "createdBy": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "pbSearchProductRequest": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string"
+        }
+      }
+    },
+    "pbSearchProductResponse": {
+      "type": "object",
+      "properties": {
+        "product": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/pbProductData"
+          }
+        }
+      }
+    },
+    "pbUpdateIndexProductRequest": {
+      "type": "object",
+      "properties": {
+        "product": {
+          "$ref": "#/definitions/pbProductData"
+        }
+      }
+    },
+    "pbUpdateIndexProductResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

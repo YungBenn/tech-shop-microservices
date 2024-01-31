@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/YungBenn/tech-shop-microservices/config"
+	"github.com/YungBenn/tech-shop-microservices/configs"
 	authSvc "github.com/YungBenn/tech-shop-microservices/internal/auth/pb"
 	productSvc "github.com/YungBenn/tech-shop-microservices/internal/product/pb"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -16,8 +16,8 @@ import (
 
 var ctx = context.Background()
 
-func initAuthServiceClient(c config.EnvVars, mux *runtime.ServeMux, log *logrus.Logger) error {
-	authServerUrl := fmt.Sprintf("%s:%s", c.AuthServiceHost, c.AuthServicePort)
+func initAuthServiceClient(conf configs.EnvVars, mux *runtime.ServeMux, log *logrus.Logger) error {
+	authServerUrl := fmt.Sprintf("%s:%s", conf.AuthServiceHost, conf.AuthServicePort)
 	conn, err := grpc.DialContext(ctx, authServerUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return err
@@ -31,8 +31,8 @@ func initAuthServiceClient(c config.EnvVars, mux *runtime.ServeMux, log *logrus.
 	return nil
 }
 
-func initProductServiceClient(c config.EnvVars, mux *runtime.ServeMux, log *logrus.Logger) error {
-	productServerUrl := fmt.Sprintf("%s:%s", c.ProductServiceHost, c.ProductServicePort)
+func initProductServiceClient(conf configs.EnvVars, mux *runtime.ServeMux, log *logrus.Logger) error {
+	productServerUrl := fmt.Sprintf("%s:%s", conf.ProductServiceHost, conf.ProductServicePort)
 	conn, err := grpc.DialContext(ctx, productServerUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return err
@@ -46,8 +46,8 @@ func initProductServiceClient(c config.EnvVars, mux *runtime.ServeMux, log *logr
 	return nil
 }
 
-// func initCartServiceClient(c config.EnvVars) (*grpc.ClientConn, error) {
-// 	cartServerUrl := fmt.Sprintf("%s:%s", c.CartServiceHost, c.CartServicePort)
+// func initCartServiceClient(conf configs.EnvVars) (*grpc.ClientConn, error) {
+// 	cartServerUrl := fmt.Sprintf("%s:%s", conf.CartServiceHost, conf.CartServicePort)
 // 	conn, err := grpc.DialContext(ctx, cartServerUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
 // 	if err != nil {
 // 		return nil, err
@@ -59,7 +59,7 @@ func initProductServiceClient(c config.EnvVars, mux *runtime.ServeMux, log *logr
 func main() {
 	log := logrus.New()
 
-	conf, err := config.LoadConfig()
+	conf, err := configs.LoadConfig()
 	if err != nil {
 		log.Error("Error loading config: ", err)
 	}

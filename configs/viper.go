@@ -1,4 +1,4 @@
-package config
+package configs
 
 import (
 	"log"
@@ -13,6 +13,8 @@ type EnvVars struct {
 	AuthServicePort    string `mapstructure:"AUTH_SERVICE_PORT"`
 	CartServiceHost    string `mapstructure:"CART_SERVICE_HOST"`
 	CartServicePort    string `mapstructure:"CART_SERVICE_PORT"`
+	SearchServiceHost  string `mapstructure:"SEARCH_SERVICE_HOST"`
+	SearchServicePort  string `mapstructure:"SEARCH_SERVICE_PORT"`
 	ProductServiceHost string `mapstructure:"PRODUCT_SERVICE_HOST"`
 	ProductServicePort string `mapstructure:"PRODUCT_SERVICE_PORT"`
 	MongodbURI         string `mapstructure:"MONGODB_URI"`
@@ -29,6 +31,7 @@ type EnvVars struct {
 	RedisDB            int    `mapstructure:"REDIS_DB"`
 	KafkaHost          string `mapstructure:"KAFKA_HOST"`
 	KafkaTopic         string `mapstructure:"KAFKA_TOPIC"`
+	KafkaGroupId       string `mapstructure:"KAFKA_GROUP_ID"`
 }
 
 func LoadConfig() (config EnvVars, err error) {

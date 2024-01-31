@@ -13,17 +13,16 @@ type AuthRepository interface {
 	FindUserByID(id string) (entity.User, error)
 	FindUserByEmail(email string) (entity.User, error)
 	SaveUser(user entity.User) (*entity.User, error)
-	UpdateUserByID(user entity.User) (*entity.User, error)
 	DeleteUserByID(user entity.User) (*entity.User, error)
 }
 
 type AuthRepositoryImpl struct {
-	db *gorm.DB
+	db  *gorm.DB
 	log *logrus.Logger
 }
 
 func NewAuthRepository(db *gorm.DB, log *logrus.Logger) AuthRepository {
-	return &AuthRepositoryImpl{db,log}
+	return &AuthRepositoryImpl{db, log}
 }
 
 func (u *AuthRepositoryImpl) FindAllUsers() ([]entity.User, error) {
@@ -56,15 +55,6 @@ func (u *AuthRepositoryImpl) FindUserByEmail(email string) (entity.User, error) 
 }
 
 func (u *AuthRepositoryImpl) SaveUser(user entity.User) (*entity.User, error) {
-	result := u.db.Save(&user)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-
-	return &user, nil
-}
-
-func (u *AuthRepositoryImpl) UpdateUserByID(user entity.User) (*entity.User, error) {
 	result := u.db.Save(&user)
 	if result.Error != nil {
 		return nil, result.Error

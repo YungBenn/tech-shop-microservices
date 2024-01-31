@@ -5,11 +5,12 @@ import (
 	"net"
 	"time"
 
-	"github.com/YungBenn/tech-shop-microservices/config"
+	"github.com/YungBenn/tech-shop-microservices/configs"
+	kafkaConn "github.com/YungBenn/tech-shop-microservices/internal/kafka"
 	"github.com/YungBenn/tech-shop-microservices/internal/mongodb"
+	"github.com/YungBenn/tech-shop-microservices/internal/product/di"
 	"github.com/YungBenn/tech-shop-microservices/internal/product/pb"
-	"github.com/YungBenn/tech-shop-microservices/internal/product/repository"
-	"github.com/YungBenn/tech-shop-microservices/internal/product/usecase"
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
@@ -18,41 +19,30 @@ import (
 )
 
 var keep = keepalive.EnforcementPolicy{
-	MinTime:             5 * time.Second, 
-	PermitWithoutStream: true,            
+	MinTime:             5 * time.Second,
+	PermitWithoutStream: true,
 }
 
 var kasp = keepalive.ServerParameters{
-	MaxConnectionIdle:     15 * time.Second, 
-	MaxConnectionAge:      30 * time.Second, 
-	MaxConnectionAgeGrace: 5 * time.Second,  
-	Time:                  5 * time.Second,  
-	Timeout:               1 * time.Second,  
+	MaxConnectionIdle:     15 * time.Second,
+	MaxConnectionAge:      30 * time.Second,
+	MaxConnectionAgeGrace: 5 * time.Second,
+	Time:                  5 * time.Second,
+	Timeout:               1 * time.Second,
 }
 
-func buildServer(log *logrus.Logger, db *mongo.Database, address string)  {
-	listen, err := net.Listen("tcp", address)
-	if err != nil {
-		log.Errorf("failed to listen: %v", err)
-	}
-
-	server := grpc.NewServer(grpc.KeepaliveEnforcementPolicy(keep), grpc.KeepaliveParams(kasp))
-	repo := repository.NewProductRepository(db, log)
-	srv := usecase.NewProductServiceServer(log, repo)
-	pb.RegisterProductServiceServer(server, srv)
-	reflection.Register(server)
-
-	log.Info("Starting Auth Service...")
-	err = server.Serve(listen)
-	if err != nil {
-		log.Errorf("cannot start Auth Service: %v", err)
-	}
+func buildServer(log *logrus.Logger, db *mongo.Database, Producer *kafka.Producer, conf configs.EnvVars) *grpc.Server{
+	srv := di.InitProductService(db, log, Producer, conf.KafkaTopic)
+    server := grpc.NewServer(grpc.KeepaliveEnforcementPolicy(keep), grpc.KeepaliveParams(kasp))
+    pb.RegisterProductServiceServer(server, srv)
+    reflection.Register(server)
+    return server
 }
 
 func main() {
 	log := logrus.New()
 
-	conf, err := config.LoadConfig()
+	conf, err := configs.LoadConfig()
 	if err != nil {
 		log.Error("Error loading config: ", err)
 	}
@@ -68,6 +58,22 @@ func main() {
 		}
 	}(db)
 
+	producer, err := kafkaConn.NewKafkaProducer(conf)
+	if err != nil {
+		log.Fatalf("Error connecting to Kafka: %s", err)
+	}
+
 	productServerUrl := fmt.Sprintf("%s:%s", conf.ProductServiceHost, conf.ProductServicePort)
-	buildServer(log, db, productServerUrl)
+    server := buildServer(log, db, producer.Producer, conf)
+
+    listen, err := net.Listen("tcp", productServerUrl)
+    if err != nil {
+        log.Fatal("failed to listen: ", err)
+    }
+
+    log.Info("Starting Auth Service...")
+    err = server.Serve(listen)
+    if err != nil {
+        log.Fatal("cannot start Auth Service: ", err)
+    }
 }

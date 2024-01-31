@@ -5,12 +5,10 @@ import (
 	"net"
 	"time"
 
-	"github.com/YungBenn/tech-shop-microservices/config"
+	"github.com/YungBenn/tech-shop-microservices/configs"
+	"github.com/YungBenn/tech-shop-microservices/internal/auth/di"
 	"github.com/YungBenn/tech-shop-microservices/internal/auth/pb"
-	"github.com/YungBenn/tech-shop-microservices/internal/auth/repository"
-	"github.com/YungBenn/tech-shop-microservices/internal/auth/usecase"
 	"github.com/YungBenn/tech-shop-microservices/internal/postgresql"
-	"github.com/YungBenn/tech-shop-microservices/internal/auth/token"
 	"github.com/YungBenn/tech-shop-microservices/internal/redis"
 	rdb "github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
@@ -33,30 +31,18 @@ var kasp = keepalive.ServerParameters{
 	Timeout:               1 * time.Second,  
 }
 
-func buildServer(log *logrus.Logger, rdb *rdb.Client, db *gorm.DB, address string)  {
-	listen, err := net.Listen("tcp", address)
-	if err != nil {
-		log.Errorf("failed to listen: %v", err)
-	}
-
-	server := grpc.NewServer(grpc.KeepaliveEnforcementPolicy(keep), grpc.KeepaliveParams(kasp))
-	repo := repository.NewAuthRepository(db, log)
-	tokenRepo := token.NewTokenRepository(rdb)
-	srv := usecase.NewAuthServiceServer(log, tokenRepo, repo)
-	pb.RegisterAuthServiceServer(server, srv)
-	reflection.Register(server)
-
-	log.Info("Starting Auth Service...")
-	err = server.Serve(listen)
-	if err != nil {
-		log.Errorf("cannot start Auth Service: %v", err)
-	}
+func buildServer(log *logrus.Logger, rdb *rdb.Client, db *gorm.DB) *grpc.Server  {
+	srv := di.InitAuthService(db, log, rdb)
+    server := grpc.NewServer(grpc.KeepaliveEnforcementPolicy(keep), grpc.KeepaliveParams(kasp))
+    pb.RegisterAuthServiceServer(server, srv)
+    reflection.Register(server)
+    return server
 }
 
 func main() {
 	log := logrus.New()
 
-	conf, err := config.LoadConfig()
+	conf, err := configs.LoadConfig()
 	if err != nil {
 		log.Error("Error loading config: ", err)
 	}
@@ -78,5 +64,16 @@ func main() {
 	}
 
 	authServerUrl := fmt.Sprintf("%s:%s", conf.AuthServiceHost, conf.AuthServicePort)
-	buildServer(log, rdb, db, authServerUrl)
+    server := buildServer(log, rdb, db)
+
+    listen, err := net.Listen("tcp", authServerUrl)
+    if err != nil {
+        log.Panic("failed to listen: ", err)
+    }
+
+    log.Info("Starting Auth Service...")
+    err = server.Serve(listen)
+    if err != nil {
+        log.Panic("cannot start Auth Service: ", err)
+    }
 }

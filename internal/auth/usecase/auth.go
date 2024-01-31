@@ -23,7 +23,11 @@ type AuthServiceServer struct {
 	repo repository.AuthRepository
 }
 
-func NewAuthServiceServer(log *logrus.Logger, rdb token.TokenRepository, repo repository.AuthRepository) pb.AuthServiceServer {
+func NewAuthServiceServer(
+	log *logrus.Logger, 
+	rdb token.TokenRepository, 
+	repo repository.AuthRepository,
+) pb.AuthServiceServer {
 	return &AuthServiceServer{
 		UnimplementedAuthServiceServer: pb.UnimplementedAuthServiceServer{},
 		log:                            log,

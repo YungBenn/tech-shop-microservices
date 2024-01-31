@@ -24,6 +24,14 @@ proto.product:
 	--openapiv2_out=api/swagger --openapiv2_opt=allow_merge=true,merge_file_name=product-service \
 	api/proto/product.proto
 
+proto.search:
+	rm -f internal/search/pb/*.go
+	protoc --proto_path=api/proto --go_out=internal/search/pb --go_opt=paths=source_relative \
+	--go-grpc_out=internal/search/pb --go-grpc_opt=paths=source_relative \
+	--grpc-gateway_out=internal/search/pb --grpc-gateway_opt=paths=source_relative \
+	--openapiv2_out=api/swagger --openapiv2_opt=allow_merge=true,merge_file_name=search-service \
+	api/proto/search.proto
+
 docker.up:
 	docker compose -p tech-shop-microservices --env-file ./.env -f ./deployments/docker/docker-compose.yml up -d
 

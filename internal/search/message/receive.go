@@ -1,68 +1,60 @@
 package message
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
+	"github.com/YungBenn/tech-shop-microservices/internal/search/entity"
+	"github.com/YungBenn/tech-shop-microservices/internal/search/repository"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 )
 
 type KafkaConsumerRepository interface {
-	Receive() (ProductData, error)
+	Receive() error
 }
 
 type KafkaImpl struct {
 	Consumer *kafka.Consumer
+	es       repository.EsProduct
 	Topic    string
 }
 
-type ProductData struct {
-	ID          string
-	Title       string
-	Price       string
-	Tag         []string
-	Discount    string
-	Image       []string
-	Description string
-	CreatedBy   string
-	CreatedAt   int64
-	UpdatedAt   int64
+func NewKafkaConsumerRepository(
+	Consumer *kafka.Consumer, 
+	es repository.EsProduct, 
+	Topic string,
+) KafkaConsumerRepository {
+	return &KafkaImpl{Consumer, es, Topic}
 }
 
-func NewKafkaConsumerRepository(Consumer *kafka.Consumer, Topic string) KafkaConsumerRepository {
-	return &KafkaImpl{Consumer, Topic}
-}
-
-func (k *KafkaImpl) Receive() (ProductData, error) {
-	k.Consumer.SubscribeTopics([]string{k.Topic}, nil)
+func (k *KafkaImpl) Receive() error {
+	err := k.Consumer.SubscribeTopics([]string{k.Topic}, nil)
+	if err != nil {
+		return err
+	}
 
 	for {
 		msg, err := k.Consumer.ReadMessage(-1)
 		if err == nil {
-			var productData ProductData
+			var productData entity.ProductData
 			err := json.Unmarshal(msg.Value, &productData)
 			if err != nil {
 				fmt.Printf("Error decoding message: %v\n", err)
 				continue
 			}
 
+			err = k.es.IndexProduct(context.Background(), productData)
+			if err != nil {
+				return err
+			}
+
 			fmt.Printf("Received Product: %+v\n: ", productData)
 
-			return ProductData{
-				ID:          productData.ID,
-				Title:       productData.Title,
-				Price:       productData.Price,
-				Tag:         productData.Tag,
-				Discount:    productData.Discount,
-				Image:       productData.Image,
-				Description: productData.Description,
-				CreatedBy:   productData.CreatedBy,
-				CreatedAt:   productData.CreatedAt,
-				UpdatedAt:   productData.UpdatedAt,
-			}, nil
+			return nil
 		} else {
 			fmt.Printf("Consumer error: %v (%v)\n", err, msg)
-			return ProductData{}, err
+			return err
 		}
 	}
 }
