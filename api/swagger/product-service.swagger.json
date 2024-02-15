@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "contact": {
       "name": "YungBenn",
-      "url": "https://github.com/YungBenn/e-commerce-microservices",
+      "url": "https://github.com/YungBenn/tech-shop-microservices",
       "email": "rubenadisuryo22@gmail.com"
     }
   },
@@ -182,9 +182,56 @@
           "ProductService"
         ]
       }
+    },
+    "/v1/stock/products/{id}": {
+      "put": {
+        "operationId": "ProductService_DecreaseProductStock",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/pbDecreaseProductStockResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ProductServiceDecreaseProductStockBody"
+            }
+          }
+        ],
+        "tags": [
+          "ProductService"
+        ]
+      }
     }
   },
   "definitions": {
+    "ProductServiceDecreaseProductStockBody": {
+      "type": "object",
+      "properties": {
+        "quantity": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
     "ProductServiceUpdateProductBody": {
       "type": "object",
       "properties": {
@@ -202,6 +249,10 @@
         },
         "discount": {
           "type": "string"
+        },
+        "stock": {
+          "type": "string",
+          "format": "int64"
         },
         "image": {
           "type": "array",
@@ -232,6 +283,10 @@
         "discount": {
           "type": "string"
         },
+        "stock": {
+          "type": "string",
+          "format": "int64"
+        },
         "image": {
           "type": "array",
           "items": {
@@ -253,6 +308,14 @@
         "message": {
           "type": "string"
         },
+        "product": {
+          "$ref": "#/definitions/pbProduct"
+        }
+      }
+    },
+    "pbDecreaseProductStockResponse": {
+      "type": "object",
+      "properties": {
         "product": {
           "$ref": "#/definitions/pbProduct"
         }
@@ -314,6 +377,10 @@
         },
         "discount": {
           "type": "string"
+        },
+        "stock": {
+          "type": "string",
+          "format": "int64"
         },
         "image": {
           "type": "array",

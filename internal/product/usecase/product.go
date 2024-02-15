@@ -23,8 +23,8 @@ type ProductServiceServer struct {
 }
 
 func NewProductServiceServer(
-	log *logrus.Logger, 
-	repo repository.ProductRepository, 
+	log *logrus.Logger,
+	repo repository.ProductRepository,
 	msg message.KafkaProducerRepository,
 ) pb.ProductServiceServer {
 	return &ProductServiceServer{
@@ -49,6 +49,7 @@ func (s *ProductServiceServer) CreateProduct(ctx context.Context, req *pb.Create
 		Price:       req.Price,
 		Tag:         req.Tag,
 		Discount:    req.Discount,
+		Stock:       int(req.Stock),
 		Image:       req.Image,
 		Description: req.Description,
 		CreatedBy:   authPayload.UserID,
@@ -134,6 +135,7 @@ func (s *ProductServiceServer) UpdateProduct(ctx context.Context, req *pb.Update
 		Price:       req.Price,
 		Tag:         req.Tag,
 		Discount:    req.Discount,
+		Stock:       int(req.Stock),
 		Image:       req.Image,
 		Description: req.Description,
 		UpdatedAt:   time.Now(),
@@ -178,5 +180,39 @@ func (s *ProductServiceServer) DeleteProduct(ctx context.Context, req *pb.Delete
 	s.log.Info("Product deleted: ", req.Id)
 	return &pb.DeleteProductResponse{
 		Message: "Product deleted successful: " + req.Id,
+	}, nil
+}
+
+func (s *ProductServiceServer) DecreaseProductStock(ctx context.Context, req *pb.DecreaseProductStockRequest) (*pb.DecreaseProductStockResponse, error) {
+	authPayload, err := utils.AuthorizeUser(ctx)
+	if err != nil {
+		s.log.Error(ErrAuthUser, err)
+		return nil, status.Errorf(codes.Internal, "Error authorizing user: %v", err)
+	}
+
+	findProduct, err := s.repo.FindOneProduct(ctx, req.Id)
+	if err != nil {
+		s.log.Error("Error finding product: ", err)
+		return nil, status.Errorf(codes.NotFound, "Error finding product: %v", err)
+	}
+
+	if findProduct.CreatedBy != authPayload.UserID {
+		s.log.Error("You are not authorized to manage this product")
+		return nil, status.Errorf(codes.PermissionDenied, "You are not authorized to manage this product")
+	}
+
+	arg := entity.Product{
+		Stock: findProduct.Stock - int(req.Quantity),
+	}
+
+	product, err := s.repo.UpdateProduct(ctx, req.Id, arg)
+	if err != nil {
+		s.log.Error("Error updating product: ", err)
+		return nil, status.Errorf(codes.Internal, "Error updating product: %v", err)
+	}
+
+	s.log.Info("Product updated: ", product.ID)
+	return &pb.DecreaseProductStockResponse{
+		Product: utils.ConvertProduct(*product),
 	}, nil
 }

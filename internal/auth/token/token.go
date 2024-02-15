@@ -4,30 +4,26 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/YungBenn/tech-shop-microservices/internal/auth/entity"
 	"github.com/redis/go-redis/v9"
 )
 
 var ctx = context.Background()
 
 type TokenRepository interface {
-	SetToken(userID string, value Token) error
-	GetToken(userID string, target *Token) error
+	SetToken(userID string, value entity.Token) error
+	GetToken(userID string, target *entity.Token) error
 }
 
 type TokenRepositoryImpl struct {
 	rdb *redis.Client
 }
 
-type Token struct {
-	Token  string `json:"token"`
-	Expiry int64  `json:"expiry"`
-}
-
 func NewTokenRepository(rdb *redis.Client) TokenRepository {
 	return &TokenRepositoryImpl{rdb}
 }
 
-func (c *TokenRepositoryImpl) SetToken(userID string, value Token) error {
+func (c *TokenRepositoryImpl) SetToken(userID string, value entity.Token) error {
 	jsonValue, err := json.Marshal(value)
 	if err != nil {
 		return err
@@ -41,7 +37,7 @@ func (c *TokenRepositoryImpl) SetToken(userID string, value Token) error {
 	return nil
 }
 
-func (c *TokenRepositoryImpl) GetToken(userID string, target *Token) error {
+func (c *TokenRepositoryImpl) GetToken(userID string, target *entity.Token) error {
 	val, err := c.rdb.Get(ctx, userID).Result()
 	if err != nil {
 		return err

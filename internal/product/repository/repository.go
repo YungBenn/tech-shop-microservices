@@ -117,6 +117,7 @@ func (p *ProductRepositoryImpl) InsertProduct(ctx context.Context, product entit
 		Price:       product.Price,
 		Tag:         product.Tag,
 		Discount:    product.Discount,
+		Stock:       product.Stock,
 		Image:       product.Image,
 		Description: product.Description,
 		CreatedAt:   time.Now(),

@@ -7,6 +7,8 @@ import (
 	userPb "github.com/YungBenn/tech-shop-microservices/internal/auth/pb"
 	productEntity "github.com/YungBenn/tech-shop-microservices/internal/product/entity"
 	productPb "github.com/YungBenn/tech-shop-microservices/internal/product/pb"
+	cartEntity "github.com/YungBenn/tech-shop-microservices/internal/cart/entity"
+	cartPb "github.com/YungBenn/tech-shop-microservices/internal/cart/pb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -35,5 +37,12 @@ func ConvertProduct(product productEntity.Product) *productPb.Product {
 		CreatedBy:   product.CreatedBy,
 		CreatedAt:   timestamppb.New(product.CreatedAt),
 		UpdatedAt:   timestamppb.New(product.UpdatedAt),
+	}
+}
+
+func ConvertCartProduct(cart cartEntity.Products) *cartPb.Product {
+	return &cartPb.Product{
+		Id:       cart.ProductID,
+		Quantity: cart.Quantity,
 	}
 }

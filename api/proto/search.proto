@@ -41,14 +41,6 @@ message CreateIndexResponse {
     string message = 1;
 }
 
-message IndexProductRequest {
-    ProductData product = 1;
-}
-
-message IndexProductResponse {
-    string message = 1;
-}
-
 message SearchProductRequest {
     string query = 1;
 }
@@ -77,12 +69,6 @@ service SearchService {
     rpc CreateIndex(CreateIndexRequest) returns (CreateIndexResponse) {
         option (google.api.http) = {
             post: "/v1/search/index"
-            body: "*"
-        };
-    }
-    rpc IndexProduct(IndexProductRequest) returns (IndexProductResponse) {
-        option (google.api.http) = {
-            post: "/v1/search/index/product"
             body: "*"
         };
     }

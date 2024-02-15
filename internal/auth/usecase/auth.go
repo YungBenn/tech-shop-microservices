@@ -94,7 +94,7 @@ func (s *AuthServiceServer) Login(ctx context.Context, req *pb.LoginRequest) (*p
 		return nil, status.Errorf(codes.Internal, "Error generating JWT: %v", err)
 	}
 
-	token := token.Token{
+	token := entity.Token{
 		Token:  tokenString,
 		Expiry: claim.ExpiresAt.Unix(),
 	}

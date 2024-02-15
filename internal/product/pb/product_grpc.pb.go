@@ -19,11 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ProductService_CreateProduct_FullMethodName = "/pb.ProductService/CreateProduct"
-	ProductService_ListProducts_FullMethodName  = "/pb.ProductService/ListProducts"
-	ProductService_ReadProduct_FullMethodName   = "/pb.ProductService/ReadProduct"
-	ProductService_UpdateProduct_FullMethodName = "/pb.ProductService/UpdateProduct"
-	ProductService_DeleteProduct_FullMethodName = "/pb.ProductService/DeleteProduct"
+	ProductService_CreateProduct_FullMethodName        = "/pb.ProductService/CreateProduct"
+	ProductService_ListProducts_FullMethodName         = "/pb.ProductService/ListProducts"
+	ProductService_ReadProduct_FullMethodName          = "/pb.ProductService/ReadProduct"
+	ProductService_UpdateProduct_FullMethodName        = "/pb.ProductService/UpdateProduct"
+	ProductService_DeleteProduct_FullMethodName        = "/pb.ProductService/DeleteProduct"
+	ProductService_DecreaseProductStock_FullMethodName = "/pb.ProductService/DecreaseProductStock"
 )
 
 // ProductServiceClient is the client API for ProductService service.
@@ -35,6 +36,7 @@ type ProductServiceClient interface {
 	ReadProduct(ctx context.Context, in *ReadProductRequest, opts ...grpc.CallOption) (*ReadProductResponse, error)
 	UpdateProduct(ctx context.Context, in *UpdateProductRequest, opts ...grpc.CallOption) (*UpdateProductResponse, error)
 	DeleteProduct(ctx context.Context, in *DeleteProductRequest, opts ...grpc.CallOption) (*DeleteProductResponse, error)
+	DecreaseProductStock(ctx context.Context, in *DecreaseProductStockRequest, opts ...grpc.CallOption) (*DecreaseProductStockResponse, error)
 }
 
 type productServiceClient struct {
@@ -90,6 +92,15 @@ func (c *productServiceClient) DeleteProduct(ctx context.Context, in *DeleteProd
 	return out, nil
 }
 
+func (c *productServiceClient) DecreaseProductStock(ctx context.Context, in *DecreaseProductStockRequest, opts ...grpc.CallOption) (*DecreaseProductStockResponse, error) {
+	out := new(DecreaseProductStockResponse)
+	err := c.cc.Invoke(ctx, ProductService_DecreaseProductStock_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProductServiceServer is the server API for ProductService service.
 // All implementations must embed UnimplementedProductServiceServer
 // for forward compatibility
@@ -99,6 +110,7 @@ type ProductServiceServer interface {
 	ReadProduct(context.Context, *ReadProductRequest) (*ReadProductResponse, error)
 	UpdateProduct(context.Context, *UpdateProductRequest) (*UpdateProductResponse, error)
 	DeleteProduct(context.Context, *DeleteProductRequest) (*DeleteProductResponse, error)
+	DecreaseProductStock(context.Context, *DecreaseProductStockRequest) (*DecreaseProductStockResponse, error)
 	mustEmbedUnimplementedProductServiceServer()
 }
 
@@ -120,6 +132,9 @@ func (UnimplementedProductServiceServer) UpdateProduct(context.Context, *UpdateP
 }
 func (UnimplementedProductServiceServer) DeleteProduct(context.Context, *DeleteProductRequest) (*DeleteProductResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteProduct not implemented")
+}
+func (UnimplementedProductServiceServer) DecreaseProductStock(context.Context, *DecreaseProductStockRequest) (*DecreaseProductStockResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DecreaseProductStock not implemented")
 }
 func (UnimplementedProductServiceServer) mustEmbedUnimplementedProductServiceServer() {}
 
@@ -224,6 +239,24 @@ func _ProductService_DeleteProduct_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProductService_DecreaseProductStock_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DecreaseProductStockRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).DecreaseProductStock(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProductService_DecreaseProductStock_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).DecreaseProductStock(ctx, req.(*DecreaseProductStockRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ProductService_ServiceDesc is the grpc.ServiceDesc for ProductService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -250,6 +283,10 @@ var ProductService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteProduct",
 			Handler:    _ProductService_DeleteProduct_Handler,
+		},
+		{
+			MethodName: "DecreaseProductStock",
+			Handler:    _ProductService_DecreaseProductStock_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

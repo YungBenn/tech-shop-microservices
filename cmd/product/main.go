@@ -31,12 +31,12 @@ var kasp = keepalive.ServerParameters{
 	Timeout:               1 * time.Second,
 }
 
-func buildServer(log *logrus.Logger, db *mongo.Database, Producer *kafka.Producer, conf configs.EnvVars) *grpc.Server{
+func buildServer(log *logrus.Logger, db *mongo.Database, Producer *kafka.Producer, conf configs.EnvVars) *grpc.Server {
 	srv := di.InitProductService(db, log, Producer, conf.KafkaTopic)
-    server := grpc.NewServer(grpc.KeepaliveEnforcementPolicy(keep), grpc.KeepaliveParams(kasp))
-    pb.RegisterProductServiceServer(server, srv)
-    reflection.Register(server)
-    return server
+	server := grpc.NewServer(grpc.KeepaliveEnforcementPolicy(keep), grpc.KeepaliveParams(kasp))
+	pb.RegisterProductServiceServer(server, srv)
+	reflection.Register(server)
+	return server
 }
 
 func main() {
@@ -64,16 +64,16 @@ func main() {
 	}
 
 	productServerUrl := fmt.Sprintf("%s:%s", conf.ProductServiceHost, conf.ProductServicePort)
-    server := buildServer(log, db, producer.Producer, conf)
+	server := buildServer(log, db, producer.Producer, conf)
 
-    listen, err := net.Listen("tcp", productServerUrl)
-    if err != nil {
-        log.Fatal("failed to listen: ", err)
-    }
+	listen, err := net.Listen("tcp", productServerUrl)
+	if err != nil {
+		log.Fatal("failed to listen: ", err)
+	}
 
-    log.Info("Starting Auth Service...")
-    err = server.Serve(listen)
-    if err != nil {
-        log.Fatal("cannot start Auth Service: ", err)
-    }
+	log.Info("Starting Auth Service...")
+	err = server.Serve(listen)
+	if err != nil {
+		log.Fatal("cannot start Auth Service: ", err)
+	}
 }

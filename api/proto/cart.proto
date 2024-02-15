@@ -1,1 +1,76 @@
-// TODO: Cart proto api design
+syntax = "proto3";
+
+package pb;
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/YungBenn/tech-shop-microservices/internal/cart/pb";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+    info: {
+        title: "Cart Service";
+        version: "1.0.0";
+        contact: {
+            name: "YungBenn";
+            url: "https://github.com/YungBenn/tech-shop-microservices";
+            email: "rubenadisuryo22@gmail.com";
+        };
+    };
+};
+
+message Product {
+    string id = 1;
+    int64 quantity = 2;
+}
+
+message AddToCartRequest {
+    string product_id = 1;
+    int64 quantity = 2;
+}
+
+message AddToCartResponse {
+    int64 status = 1;
+    string message = 2;
+}
+
+message RemoveFromCartRequest {
+    int64 user_id = 1;
+    string product_id = 2;
+}
+
+message RemoveFromCartResponse {
+    int64 status = 1;
+    string message = 2;
+}
+
+message CartListRequest {
+    int64 user_id = 1;
+}
+
+message CartListResponse {
+    int64 status = 1;
+    string message = 2;
+    string user_id = 3;
+    repeated Product cart = 4;
+}
+
+service CartService {
+    rpc AddToCart(AddToCartRequest) returns (AddToCartResponse) {
+        option (google.api.http) = {
+            post: "/v1/cart/add"
+            body: "*"
+        };
+    }
+    rpc RemoveFromCart(RemoveFromCartRequest) returns (RemoveFromCartResponse) {
+        option (google.api.http) = {
+            post: "/v1/cart/{user_id}/remove"
+            body: "*"
+        };
+    }
+    rpc CartList(CartListRequest) returns (CartListResponse) {
+        option (google.api.http) = {
+            get: "/v1/cart/{user_id}"
+        };
+    }
+}

@@ -32,12 +32,12 @@ var kasp = keepalive.ServerParameters{
 	Timeout:               1 * time.Second,
 }
 
-func buildServer(log *logrus.Logger, es *elasticsearch.Client, conf configs.EnvVars) *grpc.Server{
+func buildServer(log *logrus.Logger, es *elasticsearch.Client, conf configs.EnvVars) *grpc.Server {
 	srv := di.InitSearchService(es, log, conf.KafkaTopic)
-    server := grpc.NewServer(grpc.KeepaliveEnforcementPolicy(keep), grpc.KeepaliveParams(kasp))
-    pb.RegisterSearchServiceServer(server, srv)
-    reflection.Register(server)
-    return server
+	server := grpc.NewServer(grpc.KeepaliveEnforcementPolicy(keep), grpc.KeepaliveParams(kasp))
+	pb.RegisterSearchServiceServer(server, srv)
+	reflection.Register(server)
+	return server
 }
 
 func main() {
@@ -67,16 +67,16 @@ func main() {
 	}
 
 	searchServerUrl := fmt.Sprintf("%s:%s", conf.SearchServiceHost, conf.SearchServicePort)
-    server := buildServer(log, es, conf)
+	server := buildServer(log, es, conf)
 
-    listen, err := net.Listen("tcp", searchServerUrl)
-    if err != nil {
-        log.Fatal("failed to listen: ", err)
-    }
+	listen, err := net.Listen("tcp", searchServerUrl)
+	if err != nil {
+		log.Fatal("failed to listen: ", err)
+	}
 
-    log.Info("Starting Search Service...")
-    err = server.Serve(listen)
-    if err != nil {
-        log.Fatal("cannot start Search Service: ", err)
-    }
+	log.Info("Starting Search Service...")
+	err = server.Serve(listen)
+	if err != nil {
+		log.Fatal("cannot start Search Service: ", err)
+	}
 }

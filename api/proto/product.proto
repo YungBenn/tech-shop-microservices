@@ -26,6 +26,7 @@ message Product {
     string price = 3;
     repeated string tag = 4;
     string discount = 5;
+    int64 stock = 6;
     repeated string image = 7;
     string description = 8;
     string created_by = 9;
@@ -38,8 +39,9 @@ message CreateProductRequest {
     string price = 2;
     repeated string tag = 3;
     string discount = 4;
-    repeated string image = 5;
-    string description = 6;
+    int64 stock = 5;
+    repeated string image = 6;
+    string description = 7;
 }
 
 message CreateProductResponse {
@@ -75,8 +77,9 @@ message UpdateProductRequest {
     string price = 3;
     repeated string tag = 4;
     string discount = 5;
-    repeated string image = 6;
-    string description = 7;
+    int64 stock = 6;
+    repeated string image = 7;
+    string description = 8;
 }
 
 message UpdateProductResponse {
@@ -89,6 +92,15 @@ message DeleteProductRequest {
 
 message DeleteProductResponse {
     string message = 1;
+}
+
+message DecreaseProductStockRequest {
+    string id = 1;
+    int64 quantity = 6;
+}
+
+message DecreaseProductStockResponse {
+    Product product = 1;
 }
 
 service ProductService {
@@ -117,6 +129,12 @@ service ProductService {
     rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse) {
         option (google.api.http) = {
             delete: "/v1/products/{id}"
+        };
+    }
+    rpc DecreaseProductStock(DecreaseProductStockRequest) returns (DecreaseProductStockResponse) {
+        option (google.api.http) = {
+            put: "/v1/stock/products/{id}"
+            body: "*"
         };
     }
 }

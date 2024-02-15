@@ -8,6 +8,7 @@ import (
 	"github.com/YungBenn/tech-shop-microservices/configs"
 	authSvc "github.com/YungBenn/tech-shop-microservices/internal/auth/pb"
 	productSvc "github.com/YungBenn/tech-shop-microservices/internal/product/pb"
+	searchSvc "github.com/YungBenn/tech-shop-microservices/internal/search/pb"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -22,6 +23,8 @@ func initAuthServiceClient(conf configs.EnvVars, mux *runtime.ServeMux, log *log
 	if err != nil {
 		return err
 	}
+
+	defer conn.Close()
 
 	err = authSvc.RegisterAuthServiceHandler(ctx, mux, conn)
 	if err != nil {
@@ -38,6 +41,8 @@ func initProductServiceClient(conf configs.EnvVars, mux *runtime.ServeMux, log *
 		return err
 	}
 
+	defer conn.Close()
+
 	err = productSvc.RegisterProductServiceHandler(ctx, mux, conn)
 	if err != nil {
 		log.Error("Error registering product service handler: ", err)
@@ -46,14 +51,38 @@ func initProductServiceClient(conf configs.EnvVars, mux *runtime.ServeMux, log *
 	return nil
 }
 
-// func initCartServiceClient(conf configs.EnvVars) (*grpc.ClientConn, error) {
+func initSearchServiceClient(conf configs.EnvVars, mux *runtime.ServeMux, log *logrus.Logger) error {
+	searchServerUrl := fmt.Sprintf("%s:%s", conf.SearchServiceHost, conf.SearchServicePort)
+	conn, err := grpc.DialContext(ctx, searchServerUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return err
+	}
+
+	defer conn.Close()
+
+	err = searchSvc.RegisterSearchServiceHandler(ctx, mux, conn)
+	if err != nil {
+		log.Error("Error registering search service handler: ", err)
+	}
+
+	return nil
+}
+
+// func initCartServiceClient(conf configs.EnvVars, mux *runtime.ServeMux, log *logrus.Logger) error {
 // 	cartServerUrl := fmt.Sprintf("%s:%s", conf.CartServiceHost, conf.CartServicePort)
 // 	conn, err := grpc.DialContext(ctx, cartServerUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
 // 	if err != nil {
 // 		return nil, err
 // 	}
 
-// 	return conn, nil
+// 	defer conn.Close()
+
+// 	err = cartSvc.RegisterCartServiceHandler(ctx, mux, conn)
+// 	if err != nil {
+// 		log.Error("Error registering cart service handler: ", err)
+// 	}
+
+// 	return nil
 // }
 
 func main() {
@@ -76,12 +105,17 @@ func main() {
 		log.Error("Error initializing product service client: ", err)
 	}
 
+	err = initSearchServiceClient(conf, mux, log)
+	if err != nil {
+		log.Error("Error initializing search service client: ", err)
+	}
+
 	clientUrl := fmt.Sprintf("%s:%s", conf.ClientHost, conf.ClientPort)
-	gwServer := &http.Server{
+	server := &http.Server{
 		Addr:    clientUrl,
 		Handler: mux,
 	}
 
 	log.Println("Serving gRPC-Gateway on connection")
-	log.Fatalln(gwServer.ListenAndServe())
+	log.Fatalln(server.ListenAndServe())
 }

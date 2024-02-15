@@ -6,6 +6,16 @@ networks:
 
 services:
 
+  # nginx:
+  #   image: nginx:alpine3.18
+  #   restart: always
+  #   ports:
+  #     - 80:80
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf
+  #   depends_on:
+  #     - tech-shop
+
   mongo:
     image: mongo
     restart: always
@@ -135,7 +145,7 @@ services:
   #   ports:
   #     - "50052:50052"
   #   depends_on:
-  #     - mongo
+  #     - redis
 
   product-service:
     build:

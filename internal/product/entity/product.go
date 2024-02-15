@@ -12,6 +12,7 @@ type Product struct {
 	Price       string             `bson:"price,omitempty" json:"price,omitempty"`
 	Tag         []string           `bson:"tag,omitempty" json:"tag,omitempty"`
 	Discount    string             `bson:"discount,omitempty" json:"discount,omitempty"`
+	Stock       int                `bson:"stock,omitempty" json:"stock,omitempty"`
 	Image       []string           `bson:"image,omitempty" json:"image,omitempty"`
 	Description string             `bson:"description,omitempty" json:"description,omitempty"`
 	CreatedBy   string             `bson:"created_by,omitempty" json:"created_by,omitempty"`
