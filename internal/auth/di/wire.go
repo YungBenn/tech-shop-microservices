@@ -7,7 +7,7 @@ import (
 	"github.com/YungBenn/tech-shop-microservices/internal/auth/pb"
 	"github.com/YungBenn/tech-shop-microservices/internal/auth/repository"
 	"github.com/YungBenn/tech-shop-microservices/internal/auth/token"
-	"github.com/YungBenn/tech-shop-microservices/internal/auth/usecase"
+	"github.com/YungBenn/tech-shop-microservices/internal/auth/handler"
 	"github.com/google/wire"
 	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
@@ -18,8 +18,8 @@ func InitAuthService(db *gorm.DB, log *logrus.Logger, rdb *redis.Client) pb.Auth
 	wire.Build(
 		repository.NewAuthRepository,
 		token.NewTokenRepository,
-		usecase.NewAuthServiceServer,
+		handler.NewAuthServiceServer,
 	)
 
-	return &usecase.AuthServiceServer{}
+	return &handler.AuthServiceServer{}
 }

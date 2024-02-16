@@ -7,7 +7,7 @@ import (
 	"github.com/YungBenn/tech-shop-microservices/internal/product/message"
 	"github.com/YungBenn/tech-shop-microservices/internal/product/pb"
 	"github.com/YungBenn/tech-shop-microservices/internal/product/repository"
-	"github.com/YungBenn/tech-shop-microservices/internal/product/usecase"
+	"github.com/YungBenn/tech-shop-microservices/internal/product/handler"
 	"github.com/google/wire"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/sirupsen/logrus"
@@ -23,8 +23,8 @@ func InitProductService(
 	wire.Build(
 		repository.NewProductRepository,
 		message.NewKafkaProducerRepository,
-		usecase.NewProductServiceServer,
+		handler.NewProductServiceServer,
 	)
 
-	return &usecase.ProductServiceServer{}
+	return &handler.ProductServiceServer{}
 }

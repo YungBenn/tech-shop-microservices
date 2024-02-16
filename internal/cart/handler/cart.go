@@ -1,4 +1,4 @@
-package usecase
+package handler
 
 import (
 	"context"
@@ -32,7 +32,7 @@ func NewCartServiceServer(log *logrus.Logger, rdb repository.CartRepository) car
 func (s *CartServiceServer) AddToCart(ctx context.Context, req *cartPb.AddToCartRequest) (*cartPb.AddToCartResponse, error) {
 	authPayload, err := utils.AuthorizeUser(ctx)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Error authorizing user: %v", err)
+		return nil, status.Errorf(codes.Internal, ErrAuthUser, err)
 	}
 
 	readProductReq := &productPb.ReadProductRequest{
@@ -63,7 +63,7 @@ func (s *CartServiceServer) AddToCart(ctx context.Context, req *cartPb.AddToCart
 func (s *CartServiceServer) RemoveFromCart(ctx context.Context, req *cartPb.RemoveFromCartRequest) (*cartPb.RemoveFromCartResponse, error) {
 	authPayload, err := utils.AuthorizeUser(ctx)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Error authorizing user: %v", err)
+		return nil, status.Errorf(codes.Internal, ErrAuthUser, err)
 	}
 
 	err = s.rdb.Remove(authPayload.UserID, req.ProductId)
@@ -80,7 +80,7 @@ func (s *CartServiceServer) RemoveFromCart(ctx context.Context, req *cartPb.Remo
 func (s *CartServiceServer) CartList(ctx context.Context, req *cartPb.CartListRequest) (*cartPb.CartListResponse, error) {
 	authPayload, err := utils.AuthorizeUser(ctx)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Error authorizing user: %v", err)
+		return nil, status.Errorf(codes.Internal, ErrAuthUser, err)
 	}
 
 	cart, err := s.rdb.Get(authPayload.UserID)

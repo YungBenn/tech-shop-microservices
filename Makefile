@@ -1,6 +1,3 @@
-tidy:
-	go mod tidy
-
 proto.auth:
 	rm -f internal/auth/pb/*.go
 	protoc --proto_path=api/proto --go_out=internal/auth/pb --go_opt=paths=source_relative \
@@ -44,6 +41,18 @@ docker.clean:
 	docker rmi product-service:v1
 
 docker.restart: docker.down docker.clean docker.up
+
+wire.auth:
+	wire ./internal/auth/di
+
+wire.cart:
+	wire ./internal/cart/di
+
+wire.product:
+	wire ./internal/product/di
+
+wire.search:
+	wire ./internal/search/di
 
 kompose:
 	kompose convert -f ./deployments/docker/docker-compose.yml -o ./deployments/k8s

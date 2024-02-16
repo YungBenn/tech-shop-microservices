@@ -1,4 +1,4 @@
-package usecase
+package handler
 
 import (
 	"context"
@@ -35,13 +35,11 @@ func NewProductServiceServer(
 	}
 }
 
-const ErrAuthUser = "Error authorizing user: "
-
 func (s *ProductServiceServer) CreateProduct(ctx context.Context, req *pb.CreateProductRequest) (*pb.CreateProductResponse, error) {
 	authPayload, err := utils.AuthorizeUser(ctx)
 	if err != nil {
-		s.log.Error(ErrAuthUser, err)
-		return nil, status.Errorf(codes.Internal, "Error authorizing user: %v", err)
+		s.log.Errorf(ErrAuthUser, err)
+		return nil, status.Errorf(codes.Internal, ErrAuthUser, err)
 	}
 
 	arg := entity.Product{
@@ -115,14 +113,14 @@ func (s *ProductServiceServer) ReadProduct(ctx context.Context, req *pb.ReadProd
 func (s *ProductServiceServer) UpdateProduct(ctx context.Context, req *pb.UpdateProductRequest) (*pb.UpdateProductResponse, error) {
 	authPayload, err := utils.AuthorizeUser(ctx)
 	if err != nil {
-		s.log.Error(ErrAuthUser, err)
+		s.log.Errorf(ErrAuthUser, err)
 		return nil, status.Errorf(codes.Internal, "Error authorizing user: %v", err)
 	}
 
 	findProduct, err := s.repo.FindOneProduct(ctx, req.Id)
 	if err != nil {
-		s.log.Error("Error finding product: ", err)
-		return nil, status.Errorf(codes.NotFound, "Error finding product: %v", err)
+		s.log.Errorf(ErrFindingProduct, err)
+		return nil, status.Errorf(codes.NotFound, ErrFindingProduct, err)
 	}
 
 	if findProduct.CreatedBy != authPayload.UserID {
@@ -156,14 +154,14 @@ func (s *ProductServiceServer) UpdateProduct(ctx context.Context, req *pb.Update
 func (s *ProductServiceServer) DeleteProduct(ctx context.Context, req *pb.DeleteProductRequest) (*pb.DeleteProductResponse, error) {
 	authPayload, err := utils.AuthorizeUser(ctx)
 	if err != nil {
-		s.log.Error(ErrAuthUser, err)
-		return nil, status.Errorf(codes.Internal, "Error authorizing user: %v", err)
+		s.log.Errorf(ErrAuthUser, err)
+		return nil, status.Errorf(codes.Internal, ErrAuthUser, err)
 	}
 
 	findProduct, err := s.repo.FindOneProduct(ctx, req.Id)
 	if err != nil {
-		s.log.Error("Error finding product: ", err)
-		return nil, status.Errorf(codes.NotFound, "Error finding product: %v", err)
+		s.log.Errorf(ErrFindingProduct, err)
+		return nil, status.Errorf(codes.NotFound, ErrFindingProduct, err)
 	}
 
 	if findProduct.CreatedBy != authPayload.UserID {
@@ -186,14 +184,14 @@ func (s *ProductServiceServer) DeleteProduct(ctx context.Context, req *pb.Delete
 func (s *ProductServiceServer) DecreaseProductStock(ctx context.Context, req *pb.DecreaseProductStockRequest) (*pb.DecreaseProductStockResponse, error) {
 	authPayload, err := utils.AuthorizeUser(ctx)
 	if err != nil {
-		s.log.Error(ErrAuthUser, err)
-		return nil, status.Errorf(codes.Internal, "Error authorizing user: %v", err)
+		s.log.Errorf(ErrAuthUser, err)
+		return nil, status.Errorf(codes.Internal, ErrAuthUser, err)
 	}
 
 	findProduct, err := s.repo.FindOneProduct(ctx, req.Id)
 	if err != nil {
-		s.log.Error("Error finding product: ", err)
-		return nil, status.Errorf(codes.NotFound, "Error finding product: %v", err)
+		s.log.Errorf(ErrFindingProduct, err)
+		return nil, status.Errorf(codes.NotFound, ErrFindingProduct, err)
 	}
 
 	if findProduct.CreatedBy != authPayload.UserID {

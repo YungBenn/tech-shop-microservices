@@ -7,10 +7,10 @@
 package di
 
 import (
+	"github.com/YungBenn/tech-shop-microservices/internal/product/handler"
 	"github.com/YungBenn/tech-shop-microservices/internal/product/message"
 	"github.com/YungBenn/tech-shop-microservices/internal/product/pb"
 	"github.com/YungBenn/tech-shop-microservices/internal/product/repository"
-	"github.com/YungBenn/tech-shop-microservices/internal/product/usecase"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -21,6 +21,6 @@ import (
 func InitProductService(db *mongo.Database, log *logrus.Logger, Producer *kafka.Producer, Topic string) pb.ProductServiceServer {
 	productRepository := repository.NewProductRepository(db, log)
 	kafkaProducerRepository := message.NewKafkaProducerRepository(Producer, Topic)
-	productServiceServer := usecase.NewProductServiceServer(log, productRepository, kafkaProducerRepository)
+	productServiceServer := handler.NewProductServiceServer(log, productRepository, kafkaProducerRepository)
 	return productServiceServer
 }

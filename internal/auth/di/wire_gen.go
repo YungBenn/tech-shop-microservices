@@ -7,10 +7,10 @@
 package di
 
 import (
+	"github.com/YungBenn/tech-shop-microservices/internal/auth/handler"
 	"github.com/YungBenn/tech-shop-microservices/internal/auth/pb"
 	"github.com/YungBenn/tech-shop-microservices/internal/auth/repository"
 	"github.com/YungBenn/tech-shop-microservices/internal/auth/token"
-	"github.com/YungBenn/tech-shop-microservices/internal/auth/usecase"
 	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -21,6 +21,6 @@ import (
 func InitAuthService(db *gorm.DB, log *logrus.Logger, rdb *redis.Client) pb.AuthServiceServer {
 	tokenRepository := token.NewTokenRepository(rdb)
 	authRepository := repository.NewAuthRepository(db, log)
-	authServiceServer := usecase.NewAuthServiceServer(log, tokenRepository, authRepository)
+	authServiceServer := handler.NewAuthServiceServer(log, tokenRepository, authRepository)
 	return authServiceServer
 }
