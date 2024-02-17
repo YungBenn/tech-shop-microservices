@@ -47,7 +47,7 @@ func main() {
 		log.Error("Error loading config: ", err)
 	}
 
-	rdb := redis.Connect(conf)
+	rdb := redis.Connect(conf.RedisHost, conf.RedisDB)
 
 	dbConfig := &postgresql.Config{
 		Host:     conf.PostgresHost,

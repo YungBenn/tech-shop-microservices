@@ -21,7 +21,7 @@ type CartServiceServer struct {
 	rdb    repository.CartRepository
 }
 
-func NewCartServiceServer(log *logrus.Logger, rdb repository.CartRepository) cartPb.CartServiceServer {
+func NewCartServiceServer(client productPb.ProductServiceClient, log *logrus.Logger, rdb repository.CartRepository) cartPb.CartServiceServer {
 	return &CartServiceServer{
 		UnimplementedCartServiceServer: cartPb.UnimplementedCartServiceServer{},
 		log:                            log,

@@ -1,14 +1,13 @@
 package redis
 
 import (
-	"github.com/YungBenn/tech-shop-microservices/configs"
 	rdb "github.com/redis/go-redis/v9"
 )
 
-func Connect(env configs.EnvVars) *rdb.Client {
+func Connect(redisHost string, redisDB int) *rdb.Client {
 	rdb := rdb.NewClient(&rdb.Options{
-		Addr:     env.RedisHost,
-		DB:       env.RedisDB,
+		Addr:     redisHost,
+		DB:       redisDB,
 	})
 
 	return rdb
