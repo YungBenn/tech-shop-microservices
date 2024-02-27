@@ -32,7 +32,7 @@ var kasp = keepalive.ServerParameters{
 	Timeout:               1 * time.Second,
 }
 
-func productClientServer(conf configs.EnvVars, log *logrus.Logger) productPb.ProductServiceClient {
+func productClientConn(conf configs.EnvVars, log *logrus.Logger) productPb.ProductServiceClient {
 	productServerUrl := fmt.Sprintf("%s:%s", conf.ProductServiceHost, conf.ProductServicePort)
 	productConn, err := grpc.DialContext(context.Background(), productServerUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -60,9 +60,9 @@ func main() {
 		log.Error("Error loading config: ", err)
 	}
 
-	productClient := productClientServer(conf, log)
+	productClient := productClientConn(conf, log)
 
-	rdb := redis.Connect(conf.RedisHost, conf.RedisDB)
+	rdb := redis.Connect(conf.RedisHost, conf.RedisCart)
 
 	cartServerUrl := fmt.Sprintf("%s:%s", conf.CartServiceHost, conf.CartServicePort)
 	server := buildServer(productClient, log, rdb)

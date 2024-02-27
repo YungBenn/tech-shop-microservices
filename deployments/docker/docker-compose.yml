@@ -1,183 +1,182 @@
 version: '3.7'
 
 networks:
-  default:
-    name: tech-shop-network
+    default:
+        name: tech-shop-network
 
 services:
+    # nginx:
+    #   image: nginx:alpine3.18
+    #   restart: always
+    #   ports:
+    #     - 80:80
+    #   volumes:
+    #     - ./nginx.conf:/etc/nginx/nginx.conf
+    #   depends_on:
+    #     - tech-shop
 
-  # nginx:
-  #   image: nginx:alpine3.18
-  #   restart: always
-  #   ports:
-  #     - 80:80
-  #   volumes:
-  #     - ./nginx.conf:/etc/nginx/nginx.conf
-  #   depends_on:
-  #     - tech-shop
+    mongo:
+        image: mongo
+        restart: always
+        ports:
+            - 27017:27017
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: root
+            MONGO_INITDB_ROOT_PASSWORD: password
+        volumes:
+            - mongo-data:/data/db
 
-  mongo:
-    image: mongo
-    restart: always
-    ports:
-      - 27017:27017
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: password
-    volumes:
-      - mongo-data:/data/db
+    mongo-express:
+        image: mongo-express
+        restart: always
+        ports:
+            - 8082:8081
+        environment:
+            ME_CONFIG_MONGODB_ADMINUSERNAME: root
+            ME_CONFIG_MONGODB_ADMINPASSWORD: password
+            ME_CONFIG_MONGODB_URL: mongodb://root:password@mongo:27017/
 
-  mongo-express:
-    image: mongo-express
-    restart: always
-    ports:
-      - 8082:8081
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: password
-      ME_CONFIG_MONGODB_URL: mongodb://root:password@mongo:27017/
+    postgres:
+        image: postgres:12.17-alpine3.19
+        restart: always
+        ports:
+            - '${POSTGRES_PORT}:5432'
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DB}
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
 
-  postgres:
-    image: postgres:12.17-alpine3.19
-    restart: always
-    ports:
-      - "${POSTGRES_PORT}:5432"
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
+    adminer:
+        image: adminer
+        restart: always
+        ports:
+            - '8081:8080'
 
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - "8081:8080"
+    elasticsearch:
+        image: elasticsearch:8.11.3
+        ports:
+            - '9200:9200'
+            - '9300:9300'
+        environment:
+            - discovery.type=single-node
+            - xpack.security.enabled=false
 
-  # elasticsearch:
-  #   image: elasticsearch:8.11.3
-  #   ports:
-  #     - "9200:9200"
-  #     - "9300:9300"
-  #   environment:
-  #     - discovery.type=single-node
-  #     - xpack.security.enabled=false
+    redis:
+        image: redis:7.2.3
+        restart: always
+        ports:
+            - '6379:6379'
 
-  redis:
-    image: redis:7.2.3
-    restart: always
-    ports:
-      - "6379:6379"
+    zookeeper:
+      image: confluentinc/cp-zookeeper:7.5.0
+      ports:
+        - "2181:2181"
+      environment:
+        ZOOKEEPER_CLIENT_PORT: 2181
+        ZOOKEEPER_TICK_TIME: 2000
 
-  # zookeeper:
-  #   image: confluentinc/cp-zookeeper:7.5.0
-  #   ports:
-  #     - "2181:2181"
-  #   environment:
-  #     ZOOKEEPER_CLIENT_PORT: 2181
-  #     ZOOKEEPER_TICK_TIME: 2000
+    broker:
+      image: confluentinc/cp-server:7.5.0
+      hostname: broker
+      container_name: broker
+      depends_on:
+        - zookeeper
+      ports:
+        - "9092:9092"
+        - "9101:9101"
+      environment:
+        KAFKA_BROKER_ID: 1
+        KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+        KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+        KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
+        KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+        KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+        KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+        KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
+        KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
+        KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+        KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+        KAFKA_JMX_PORT: 9101
+        KAFKA_JMX_HOSTNAME: localhost
+        CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker:29092
+        CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+        CONFLUENT_METRICS_ENABLE: 'true'
+        CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
 
-  # broker:
-  #   image: confluentinc/cp-server:7.5.0
-  #   hostname: broker
-  #   container_name: broker
-  #   depends_on:
-  #     - zookeeper
-  #   ports:
-  #     - "9092:9092"
-  #     - "9101:9101"
-  #   environment:
-  #     KAFKA_BROKER_ID: 1
-  #     KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
-  #     KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
-  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-  #     KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-  #     KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
-  #     KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
-  #     KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-  #     KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-  #     KAFKA_JMX_PORT: 9101
-  #     KAFKA_JMX_HOSTNAME: localhost
-  #     CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker:29092
-  #     CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
-  #     CONFLUENT_METRICS_ENABLE: 'true'
-  #     CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
+    tech-shop:
+        build:
+            context: ../../
+            dockerfile: ./build/tech-shop-gateway/Dockerfile
+        restart: always
+        image: tech-shop:v1
+        ports:
+            - '50050:50050'
+        environment:
+            - AUTH_SERVICE_HOST=auth-service
+            - PRODUCT_SERVICE_HOST=product-service
+        depends_on:
+            - auth-service
+            - product-service
 
-  tech-shop:
-    build:
-      context: ../../
-      dockerfile: ./build/tech-shop-gateway/Dockerfile
-    restart: always
-    image: tech-shop:v1
-    ports:
-      - "50050:50050"
-    environment:
-      - AUTH_SERVICE_HOST=auth-service
-      - PRODUCT_SERVICE_HOST=product-service
-    depends_on:
-      - auth-service
-      - product-service
+    auth-service:
+        build:
+            context: ../../
+            dockerfile: ./build/auth-service/Dockerfile
+        restart: always
+        image: auth-service:v1
+        ports:
+            - '50051:50051'
+        environment:
+            - POSTGRES_HOST=postgres
+            - REDIS_HOST=redis:6379
+        depends_on:
+            - postgres
+            - redis
 
-  auth-service:
-    build:
-      context: ../../
-      dockerfile: ./build/auth-service/Dockerfile
-    restart: always
-    image: auth-service:v1
-    ports:
-      - "50051:50051"
-    environment:
-      - POSTGRES_HOST=postgres
-      - REDIS_HOST=redis:6379
-    depends_on:
-      - postgres
-      - redis
+    cart-service:
+        build:
+            context: ./build/cart-service
+            dockerfile: Dockerfile
+        restart: always
+        image: cart-service:v1
+        ports:
+            - '50052:50052'
+        depends_on:
+            - redis
 
-  # cart-service:
-  #   build:
-  #     context: ./build/cart-service
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   image: cart-service:v1
-  #   ports:
-  #     - "50052:50052"
-  #   depends_on:
-  #     - redis
+    product-service:
+        build:
+            context: ../../
+            dockerfile: ./build/product-service/Dockerfile
+        restart: always
+        image: product-service:v1
+        ports:
+            - '50053:50053'
+        environment:
+            - MONGODB_URI=mongodb://root:password@mongo:27017
+        depends_on:
+            - mongo
 
-  product-service:
-    build:
-      context: ../../
-      dockerfile: ./build/product-service/Dockerfile
-    restart: always
-    image: product-service:v1
-    ports:
-      - "50053:50053"
-    environment:
-      - MONGODB_URI=mongodb://root:password@mongo:27017
-    depends_on:
-      - mongo
+    search-service:
+      build:
+        context: ../../
+        dockerfile: ./build/search-service/Dockerfile
+      restart: always
+      image: search-service:v1
+      ports:
+        - "50054:50054"
+      environment:
+        - ELASTICSEARCH_URL=elasticsearch:9200
+        - KAFKA_HOST=broker:9092
+        - KAFKA_TOPIC=product
+      depends_on:
+        - elasticsearch
+        - broker
 
-  # search-service:
-  #   build:
-  #     context: ../../
-  #     dockerfile: ./build/search-service/Dockerfile
-  #   restart: always
-  #   image: search-service:v1
-  #   ports:
-  #     - "50054:50054"
-  #   environment:
-  #     - ELASTICSEARCH_URL=elasticsearch:9200
-  #     - KAFKA_HOST=broker:9092
-  #     - KAFKA_TOPIC=product
-  #   depends_on:
-  #     - elasticsearch
-  #     - broker
-    
 volumes:
-  mongo-data:
-    driver: local
-  postgres-data:
-    driver: local
+    mongo-data:
+        driver: local
+    postgres-data:
+        driver: local

@@ -1,4 +1,3 @@
-
 # Tech Shop - Backend
 
 Tech Shop is a robust and scalable e-commerce platform built with a microservices architecture. It leverages the power of gRPC for efficient, high-performance communication between services.
@@ -11,10 +10,10 @@ Whether you're looking to understand how to architect a microservices-based appl
 
 Stay tuned for more features and improvements as we continue to expand and refine Tech Shop.
 
-
 ## Software Architechture
 
-![tech-shop-architechture](tech-shop-architechture-2.png)
+![tech-shop-architechture](tech-shop-architechture.png)
+
 ## Run Locally with Docker
 
 Clone the project
@@ -29,7 +28,7 @@ Go to the project directory
   cd tech-shop-microservices
 ```
 
-create .env  from example
+create .env from example
 
 ```bash
   cp .env.example .env
@@ -41,11 +40,9 @@ Start the server with make
   make docker.up
 ```
 
-
 ## Features
 
-- a
-- b
-- c
-- d
-
+-   a
+-   b
+-   c
+-   d

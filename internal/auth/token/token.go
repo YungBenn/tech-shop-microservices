@@ -12,7 +12,7 @@ var ctx = context.Background()
 
 type TokenRepository interface {
 	SetToken(userID string, value entity.Token) error
-	GetToken(userID string, target *entity.Token) error
+	GetToken(userID string) error
 }
 
 type TokenRepositoryImpl struct {
@@ -37,16 +37,17 @@ func (c *TokenRepositoryImpl) SetToken(userID string, value entity.Token) error 
 	return nil
 }
 
-func (c *TokenRepositoryImpl) GetToken(userID string, target *entity.Token) error {
-	val, err := c.rdb.Get(ctx, userID).Result()
-	if err != nil {
-		return err
-	}
+func (c *TokenRepositoryImpl) GetToken(userID string) error {
+		val, err := c.rdb.Get(ctx, userID).Result()
+		if err != nil {
+			return err
+		}
 
-	err = json.Unmarshal([]byte(val), target)
-	if err != nil {
-		return err
-	}
+		var target entity.Token
+		err = json.Unmarshal([]byte(val), &target)
+		if err != nil {
+			return err
+		}
 
-	return nil
+		return nil
 }
