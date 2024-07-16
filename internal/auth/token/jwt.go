@@ -9,17 +9,29 @@ import (
 )
 
 type JWTClaim struct {
-	UserID string `json:"user_id"`
-	Email  string `json:"email"`
+	UserID      string    `json:"user_id"`
+	Email       string    `json:"email"`
+	FirstName   string    `json:"first_name"`
+	LastName    string    `json:"last_name"`
+	PhoneNumber string    `json:"phone_number"`
+	DateOfBirth time.Time `json:"date_of_birth"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 	jwt.RegisteredClaims
 }
 
-func GenerateJWT(user entity.User) (string, *JWTClaim, error) {
-	JwtKey := []byte("secret")
+var JwtKey = []byte("secret") 
 
+func GenerateJWT(user entity.User) (string, *JWTClaim, error) {
 	claims := &JWTClaim{
-		UserID:           user.ID,
-		Email:            user.Email,
+		UserID:      user.ID,
+		Email:       user.Email,
+		FirstName:   user.FirstName,
+		LastName:    user.LastName,
+		PhoneNumber: user.PhoneNumber,
+		DateOfBirth: user.DateOfBirth,
+		CreatedAt:   user.CreatedAt,
+		UpdatedAt:   user.UpdatedAt,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -34,14 +46,12 @@ func GenerateJWT(user entity.User) (string, *JWTClaim, error) {
 }
 
 func VerifyJWT(token string) (*JWTClaim, error) {
-	JwtKey := []byte("secret")
-
 	claims := &JWTClaim{}
 	keyFunc := func(token *jwt.Token) (interface{}, error) {
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
 			return nil, jwt.ErrInvalidKey
-		
+
 		}
 		return JwtKey, nil
 	}

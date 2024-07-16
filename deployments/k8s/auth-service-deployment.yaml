@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ./deployments/docker/docker-compose.yml -o ./deployments/k8s
+    kompose.version: 1.32.0 (765fde254)
+  labels:
+    io.kompose.service: auth-service
+  name: auth-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: auth-service
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ./deployments/docker/docker-compose.yml -o ./deployments/k8s
+        kompose.version: 1.32.0 (765fde254)
+      labels:
+        io.kompose.network/tech-shop-network: "true"
+        io.kompose.service: auth-service
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_HOST
+              value: postgres
+            - name: REDIS_HOST
+              value: redis:6379
+          image: auth-service:v1
+          name: auth-service
+          ports:
+            - containerPort: 50051
+              hostPort: 50051
+              protocol: TCP
+      restartPolicy: Always

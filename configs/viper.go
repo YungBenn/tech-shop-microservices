@@ -28,8 +28,8 @@ type EnvVars struct {
 	PostgresSSLMode    string `mapstructure:"POSTGRES_SSL_MODE"`
 	ElasticsearchURL   string `mapstructure:"ELASTICSEARCH_URL"`
 	RedisHost          string `mapstructure:"REDIS_HOST"`
-	RedisAuth            int    `mapstructure:"REDIS_AUTH"`
-	RedisCart            int    `mapstructure:"REDIS_CART"`
+	RedisAuth          int    `mapstructure:"REDIS_AUTH"`
+	RedisCart          int    `mapstructure:"REDIS_CART"`
 	KafkaHost          string `mapstructure:"KAFKA_HOST"`
 	KafkaTopic         string `mapstructure:"KAFKA_TOPIC"`
 	KafkaGroupId       string `mapstructure:"KAFKA_GROUP_ID"`

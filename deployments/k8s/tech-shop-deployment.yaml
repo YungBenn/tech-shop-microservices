@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ./deployments/docker/docker-compose.yml -o ./deployments/k8s
+    kompose.version: 1.32.0 (765fde254)
+  labels:
+    io.kompose.service: tech-shop
+  name: tech-shop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: tech-shop
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ./deployments/docker/docker-compose.yml -o ./deployments/k8s
+        kompose.version: 1.32.0 (765fde254)
+      labels:
+        io.kompose.network/tech-shop-network: "true"
+        io.kompose.service: tech-shop
+    spec:
+      containers:
+        - env:
+            - name: AUTH_SERVICE_HOST
+              value: auth-service
+            - name: PRODUCT_SERVICE_HOST
+              value: product-service
+          image: tech-shop:v1
+          name: tech-shop
+          ports:
+            - containerPort: 50050
+              hostPort: 50050
+              protocol: TCP
+      restartPolicy: Always

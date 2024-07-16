@@ -9,6 +9,7 @@ import (
 	authSvc "github.com/YungBenn/tech-shop-microservices/internal/auth/pb"
 	productSvc "github.com/YungBenn/tech-shop-microservices/internal/product/pb"
 	searchSvc "github.com/YungBenn/tech-shop-microservices/internal/search/pb"
+	cartSvc "github.com/YungBenn/tech-shop-microservices/internal/cart/pb"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -68,22 +69,22 @@ func initSearchServiceClient(conf configs.EnvVars, mux *runtime.ServeMux, log *l
 	return nil
 }
 
-// func initCartServiceClient(conf configs.EnvVars, mux *runtime.ServeMux, log *logrus.Logger) error {
-// 	cartServerUrl := fmt.Sprintf("%s:%s", conf.CartServiceHost, conf.CartServicePort)
-// 	conn, err := grpc.DialContext(ctx, cartServerUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
-// 	if err != nil {
-// 		return nil, err
-// 	}
+func initCartServiceClient(conf configs.EnvVars, mux *runtime.ServeMux, log *logrus.Logger) error {
+	cartServerUrl := fmt.Sprintf("%s:%s", conf.CartServiceHost, conf.CartServicePort)
+	conn, err := grpc.DialContext(ctx, cartServerUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return err
+	}
 
-// 	defer conn.Close()
+	defer conn.Close()
 
-// 	err = cartSvc.RegisterCartServiceHandler(ctx, mux, conn)
-// 	if err != nil {
-// 		log.Error("Error registering cart service handler: ", err)
-// 	}
+	err = cartSvc.RegisterCartServiceHandler(ctx, mux, conn)
+	if err != nil {
+		log.Error("Error registering cart service handler: ", err)
+	}
 
-// 	return nil
-// }
+	return nil
+}
 
 func main() {
 	log := logrus.New()
@@ -108,6 +109,11 @@ func main() {
 	err = initSearchServiceClient(conf, mux, log)
 	if err != nil {
 		log.Error("Error initializing search service client: ", err)
+	}
+
+	err = initCartServiceClient(conf, mux, log)
+	if err != nil {
+		log.Error("Error initializing cart service client: ", err)
 	}
 
 	clientUrl := fmt.Sprintf("%s:%s", conf.ClientHost, conf.ClientPort)

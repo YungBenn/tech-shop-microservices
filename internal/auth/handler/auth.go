@@ -24,8 +24,8 @@ type AuthServiceServer struct {
 }
 
 func NewAuthServiceServer(
-	log *logrus.Logger, 
-	rdb token.TokenRepository, 
+	log *logrus.Logger,
+	rdb token.TokenRepository,
 	repo repository.AuthRepository,
 ) pb.AuthServiceServer {
 	return &AuthServiceServer{

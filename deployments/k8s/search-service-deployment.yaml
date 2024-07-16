@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ./deployments/docker/docker-compose.yml -o ./deployments/k8s
+    kompose.version: 1.32.0 (765fde254)
+  labels:
+    io.kompose.service: search-service
+  name: search-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: search-service
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f ./deployments/docker/docker-compose.yml -o ./deployments/k8s
+        kompose.version: 1.32.0 (765fde254)
+      labels:
+        io.kompose.network/tech-shop-network: "true"
+        io.kompose.service: search-service
+    spec:
+      containers:
+        - env:
+            - name: ELASTICSEARCH_URL
+              value: elasticsearch:9200
+            - name: KAFKA_HOST
+              value: broker:9092
+            - name: KAFKA_TOPIC
+              value: product
+          image: search-service:v1
+          name: search-service
+          ports:
+            - containerPort: 50054
+              hostPort: 50054
+              protocol: TCP
+      restartPolicy: Always

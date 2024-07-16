@@ -41,7 +41,7 @@ func (s *CartServiceServer) AddToCart(ctx context.Context, req *cartPb.AddToCart
 
 	res, err := s.client.ReadProduct(ctx, readProductReq)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Error reading product: %v", err)
+		return nil, status.Errorf(codes.Internal, ErrReadingProduct, err)
 	}
 
 	value := entity.Products{
@@ -51,7 +51,7 @@ func (s *CartServiceServer) AddToCart(ctx context.Context, req *cartPb.AddToCart
 
 	err = s.rdb.Add(authPayload.UserID, value)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Error adding to cart: %v", err)
+		return nil, status.Errorf(codes.Internal, ErrAddingToCart, err)
 	}
 
 	return &cartPb.AddToCartResponse{
@@ -68,7 +68,7 @@ func (s *CartServiceServer) RemoveFromCart(ctx context.Context, req *cartPb.Remo
 
 	err = s.rdb.Remove(authPayload.UserID, req.ProductId)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Error removing from cart: %v", err)
+		return nil, status.Errorf(codes.Internal, ErrRemovingFromCart, err)
 	}
 
 	return &cartPb.RemoveFromCartResponse{
@@ -85,7 +85,7 @@ func (s *CartServiceServer) CartList(ctx context.Context, req *cartPb.CartListRe
 
 	cart, err := s.rdb.Get(authPayload.UserID)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Error getting cart: %v", err)
+		return nil, status.Errorf(codes.Internal, ErrGettingCart, err)
 	}
 
 	cartList := make([]*cartPb.Product, len(cart.Products))
@@ -96,7 +96,7 @@ func (s *CartServiceServer) CartList(ctx context.Context, req *cartPb.CartListRe
 	return &cartPb.CartListResponse{
 		Status:  http.StatusOK,
 		Message: "Successfully retrieved cart",
-		UserId: authPayload.UserID,
-		Cart: cartList,
+		UserId:  authPayload.UserID,
+		Cart:    cartList,
 	}, nil
 }
