@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/YungBenn/tech-shop-microservices/internal/search/entity"
@@ -15,7 +16,7 @@ type EsProduct interface {
 	IndexProduct(ctx context.Context, product entity.ProductData) error
 	SearchProduct(ctx context.Context, query string) ([]entity.ProductData, error)
 	UpdateProduct(ctx context.Context, product entity.ProductData) error
-	// TODO: Delete Product
+	DeleteProduct(ctx context.Context, product entity.ProductData) error
 }
 
 type EsProductImpl struct {
@@ -47,18 +48,18 @@ func (sp *EsProductImpl) CreateIndex(ctx context.Context, index string) error {
 	mapping := `{
 		"settings": {
 			"number_of_shards": 1
-		},
-		"mappings": {
-			"properties": {
-				"field1": {
-					"type": "text"
-				}
-			}
-		}
-	}`
+			},
+			"mappings": {
+				"properties": {
+					"field1": {
+						"type": "text"
+						}
+						}
+						}
+						}`
 
 	res, err := sp.client.Indices.Create(
-		index, 
+		index,
 		sp.client.Indices.Create.WithBody(strings.NewReader(mapping)),
 	)
 	if err != nil {
@@ -99,14 +100,14 @@ func (sp *EsProductImpl) IndexProduct(ctx context.Context, product entity.Produc
 
 func (sp *EsProductImpl) SearchProduct(ctx context.Context, query string) ([]entity.ProductData, error) {
 	req := `{
-		"query": {
-			"multi_match": {
-				"query": "` + query + `",
-				"type": "phrase_prefix",
-				"fields": ["title", "tag", "description"]
-			}
-		}
-	}`
+							"query": {
+								"multi_match": {
+									"query": "` + query + `",
+									"type": "phrase_prefix",
+									"fields": ["title", "tag", "description"]
+									}
+									}
+									}`
 
 	res, err := sp.client.Search(
 		sp.client.Search.WithContext(ctx),
@@ -161,7 +162,16 @@ func (sp *EsProductImpl) UpdateProduct(ctx context.Context, product entity.Produ
 		strings.NewReader(string(data)),
 	)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to update product: %v", err)
+	}
+
+	return nil
+}
+
+func (sp *EsProductImpl) DeleteProduct(ctx context.Context, product entity.ProductData) error {
+	_, err := sp.client.Delete(sp.index, product.ID)
+	if err != nil {
+		return fmt.Errorf("failed to delete product: %v", err)
 	}
 
 	return nil
